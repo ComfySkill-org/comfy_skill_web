@@ -251,16 +251,16 @@ function HomePage({ onNavigate }: { onNavigate: (view: View) => void }) {
       <section className="landing-hero">
         <HeroCanvas />
         <div className="hero-copy">
-          <p className="eyebrow">Skill-driven · ComfyUI powered</p>
-          <h1>Idea to animation.</h1>
-          <p>Describe it. Watch it move.</p>
+          <p className="eyebrow">Product-first creation studio</p>
+          <h1>Story to screen.</h1>
+          <p>Build shots on a canvas. Ship the piece—not the pipeline.</p>
           <div className="hero-links">
             <button onClick={() => onNavigate('features')}>Features</button>
             <button onClick={() => onNavigate('pricing')}>Pricing</button>
             <button onClick={() => onNavigate('billing')}>Billing</button>
           </div>
           <div className="actions">
-            <button className="btn-primary" onClick={() => onNavigate('app')}>Create animation</button>
+            <button className="btn-primary" onClick={() => onNavigate('app')}>Open studio</button>
             <button className="btn-secondary" onClick={() => onNavigate('pricing')}>View plans</button>
           </div>
         </div>
@@ -268,14 +268,14 @@ function HomePage({ onNavigate }: { onNavigate: (view: View) => void }) {
       </section>
 
       <section className="section-heading">
-        <p className="eyebrow">Core features</p>
-        <h2>One clear path from imagination to output</h2>
+        <p className="eyebrow">What you make</p>
+        <h2>Organize the story. Generate the look.</h2>
       </section>
       <section className="grid three feature-grid">
         {[
-          { title: 'Say the goal', desc: 'Use normal language: product shot, story scene, social visual, or animation concept.' },
-          { title: 'Pick simple choices', desc: 'Quality, platform, and style stay understandable. No model names, steps, CFG, or node graphs.' },
-          { title: 'Let workflows run', desc: 'ComfySkill maps your intent to presets, credits, and ComfyUI workflows behind the scenes.' },
+          { title: 'Start from the piece', desc: 'Name the scene, the beat, or the social cut—not a model checkpoint or node graph.' },
+          { title: 'Arrange on a canvas', desc: 'Drag story blocks, preview frames, and keep the board readable while you iterate.' },
+          { title: 'Hide the engine', desc: 'Parameters stay tucked behind a single control. The studio stays about the work, not the wiring.' },
         ].map((item) => (
           <div className="card feature-card" key={item.title}>
             <h3>{item.title}</h3>
@@ -287,13 +287,13 @@ function HomePage({ onNavigate }: { onNavigate: (view: View) => void }) {
       <section className="card flow-section">
         <div>
           <p className="eyebrow">How it works</p>
-          <h2>Describe → choose quality → generate → refine</h2>
+          <h2>Brief → storyboard → generate → refine</h2>
           <p className="muted">
-            The interface stays simple enough to scan in seconds, while the backend keeps the ComfyUI power available for advanced workflows.
+            You stay in product language the whole way. Generation runs behind the scenes so the canvas never turns into a node editor.
           </p>
         </div>
         <div className="flow-steps">
-          {['Idea', 'Skill preset', 'ComfyUI workflow', 'Visual result'].map((step, index) => (
+          {['Brief', 'Story blocks', 'Generate', 'Polish'].map((step, index) => (
             <div className="flow-step" key={step}>
               <span>{index + 1}</span>
               <strong>{step}</strong>

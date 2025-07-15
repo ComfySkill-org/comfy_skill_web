@@ -549,9 +549,9 @@ function FeaturesPage() {
       <h1>Features</h1>
       <div className="grid three">
         {[
-          ['Skill-driven UX', 'Users choose purpose and quality. ComfySkill handles workflow details.'],
-          ['ComfyUI powered', 'Keep ComfyUI as the engine without exposing node graphs to end users.'],
-          ['SaaS-ready base', 'Auth, credits, billing, usage, and admin follow LastSaaS/legacy patterns.'],
+          ['Product-first studio', 'You work in stories and shots. The platform handles generation details behind the scenes.'],
+          ['Canvas storyboard', 'Drag blocks, preview frames, and keep parameters hidden until you open them on purpose.'],
+          ['SaaS-ready base', 'Auth, credits, billing, usage, and admin stay in place while the studio stays creative.'],
         ].map(([title, desc]) => (
           <div className="card" key={title}>
             <h3>{title}</h3>

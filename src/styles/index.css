@@ -284,6 +284,9 @@ label span,
 
 .app-page,
 .billing-page,
+.developer-page,
+.health-page,
+.settings-page,
 .admin-page,
 .table-page,
 .pricing-page {
@@ -369,6 +372,22 @@ label span,
   grid-template-columns: 1fr 1fr;
 }
 
+.settings-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.checkbox-row {
+  align-items: center;
+  display: flex;
+  gap: 0.65rem;
+}
+
+.checkbox-row span {
+  margin: 0;
+}
+
 .status-box {
   background: rgba(255, 244, 184, 0.45);
   border-radius: 0.9rem;
@@ -425,6 +444,62 @@ label span,
   gap: 1rem;
   justify-content: space-between;
   padding: 0.85rem;
+}
+
+.audit-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.audit-row {
+  align-items: center;
+  border: 1px solid rgba(126, 200, 227, 0.14);
+  border-radius: 0.9rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.85rem;
+}
+
+.audit-row p {
+  color: var(--skill-muted);
+  margin: 0.25rem 0 0;
+}
+
+.integration-card {
+  position: relative;
+}
+
+.status-dot {
+  border-radius: 999px;
+  display: inline-block;
+  height: 0.7rem;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  width: 0.7rem;
+}
+
+.status-dot.healthy {
+  background: #1f7a3a;
+}
+
+.status-dot.unhealthy {
+  background: #dc2626;
+}
+
+.status-dot.not_configured {
+  background: #f59e0b;
+}
+
+code {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 0.5rem;
+  display: block;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  margin-top: 0.5rem;
+  overflow-wrap: anywhere;
+  padding: 0.75rem;
 }
 
 .tx-row p {
@@ -558,6 +633,7 @@ th {
   .grid.three,
   .grid.four,
   .billing-grid,
+  .settings-grid,
   .quality-grid,
   .test-card-box dl {
     grid-template-columns: 1fr;

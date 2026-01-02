@@ -3,16 +3,36 @@ import {
   adminApi,
   authApi,
   billingApi,
+  developerApi,
   getToken,
   jobsApi,
+  platformApi,
+  settingsApi,
   setToken,
+  type APIKey,
+  type AuditLog,
+  type IntegrationCheck,
   type Job,
   type QualityTier,
   type Transaction,
   type User,
+  type WebhookEndpoint,
 } from './api/client';
 
-type View = 'home' | 'features' | 'pricing' | 'login' | 'app' | 'billing' | 'admin' | 'adminJobs' | 'adminUsers';
+type View =
+  | 'home'
+  | 'features'
+  | 'pricing'
+  | 'login'
+  | 'app'
+  | 'billing'
+  | 'settings'
+  | 'developer'
+  | 'health'
+  | 'admin'
+  | 'adminJobs'
+  | 'adminUsers'
+  | 'adminAudit';
 
 const QUALITY_OPTIONS: { tier: QualityTier; label: string; hint: string }[] = [
   { tier: 'premium', label: 'Good', hint: 'Best quality · higher cost' },
@@ -71,9 +91,13 @@ export default function App() {
         {view === 'login' && <LoginPage onLogin={handleLogin} onRegister={handleRegister} />}
         {view === 'app' && <AppPage user={user} onNavigate={setView} onUserRefresh={refreshUser} />}
         {view === 'billing' && <BillingPage user={user} onNavigate={setView} />}
+        {view === 'settings' && <SettingsPage user={user} onNavigate={setView} onUserRefresh={refreshUser} />}
+        {view === 'developer' && <DeveloperPage user={user} onNavigate={setView} />}
+        {view === 'health' && <HealthPage user={user} onNavigate={setView} />}
         {view === 'admin' && <AdminPage user={user} onNavigate={setView} />}
         {view === 'adminJobs' && <AdminJobsPage user={user} />}
         {view === 'adminUsers' && <AdminUsersPage user={user} />}
+        {view === 'adminAudit' && <AdminAuditPage user={user} />}
       </main>
     </>
   );
@@ -116,6 +140,7 @@ function SiteHeader({
           {user ? (
             <>
               <button onClick={() => onNavigate('app')}>Create</button>
+              <button onClick={() => onNavigate('health')}>Health</button>
               {user.role === 'admin' && <button onClick={() => onNavigate('admin')}>Admin</button>}
               <div className="account-menu" ref={ref}>
                 <button className="account-trigger" onClick={() => setOpen((value) => !value)}>
@@ -141,6 +166,8 @@ function SiteHeader({
                     </div>
                     <button onClick={() => onNavigate('app')}>Create</button>
                     <button onClick={() => onNavigate('billing')}>Billing & usage</button>
+                    <button onClick={() => onNavigate('settings')}>Settings & security</button>
+                    <button onClick={() => onNavigate('developer')}>API keys & webhooks</button>
                     {user.role === 'admin' && <button onClick={() => onNavigate('admin')}>Admin dashboard</button>}
                     <button className="danger" onClick={onLogout}>Log out</button>
                   </div>
@@ -402,6 +429,7 @@ function PricingPage({ onNavigate }: { onNavigate: (view: View) => void }) {
 function BillingPage({ user, onNavigate }: { user: User | null; onNavigate: (view: View) => void }) {
   const [balance, setBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [subscription, setSubscription] = useState<Awaited<ReturnType<typeof billingApi.subscription>> | null>(null);
   const [stripeStatus, setStripeStatus] = useState<{ configured: boolean; price_configured: boolean; mode: string } | null>(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -409,10 +437,11 @@ function BillingPage({ user, onNavigate }: { user: User | null; onNavigate: (vie
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([billingApi.balance(), billingApi.transactions(), billingApi.stripeStatus()])
-      .then(([balanceResult, txResult, status]) => {
+    Promise.all([billingApi.balance(), billingApi.transactions(), billingApi.subscription(), billingApi.stripeStatus()])
+      .then(([balanceResult, txResult, subscriptionResult, status]) => {
         setBalance(balanceResult.balance_credits);
         setTransactions(txResult.transactions);
+        setSubscription(subscriptionResult);
         setStripeStatus(status);
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load billing'));
@@ -461,6 +490,8 @@ function BillingPage({ user, onNavigate }: { user: User | null; onNavigate: (vie
           <p className="muted">Current balance</p>
           <p className="big-number">{balance ?? '...'} credits</p>
           <div className="status-box">
+            Subscription: <strong>{subscription?.status ?? 'loading'}</strong><br />
+            Plan: <strong>{subscription?.plan_id ?? '-'}</strong><br />
             Stripe mode: <strong>{stripeStatus?.mode ?? 'loading'}</strong><br />
             Checkout: <strong>{stripeReady ? 'configured' : 'not ready'}</strong>
           </div>
@@ -527,6 +558,235 @@ function BillingPage({ user, onNavigate }: { user: User | null; onNavigate: (vie
   );
 }
 
+function SettingsPage({
+  user,
+  onNavigate,
+  onUserRefresh,
+}: {
+  user: User | null;
+  onNavigate: (view: View) => void;
+  onUserRefresh: () => Promise<void>;
+}) {
+  const [name, setName] = useState(user?.name ?? '');
+  const [defaultQuality, setDefaultQuality] = useState<QualityTier>(user?.preferences?.default_quality ?? 'standard');
+  const [defaultLanguage, setDefaultLanguage] = useState(user?.preferences?.default_language ?? 'English');
+  const [marketingEmails, setMarketingEmails] = useState(user?.preferences?.marketing_emails ?? true);
+  const [security, setSecurity] = useState<Awaited<ReturnType<typeof settingsApi.security>> | null>(null);
+  const [activity, setActivity] = useState<AuditLog[]>([]);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([settingsApi.security(), settingsApi.activity()])
+      .then(([securityResult, activityResult]) => {
+        setSecurity(securityResult);
+        setActivity(activityResult.events);
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load settings'));
+  }, [user]);
+
+  if (!user) return <LoginRequired onNavigate={onNavigate} />;
+
+  async function saveSettings(event: FormEvent) {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+    try {
+      await settingsApi.profile({ name });
+      await settingsApi.preferences({
+        default_quality: defaultQuality,
+        default_language: defaultLanguage,
+        marketing_emails: marketingEmails,
+      });
+      await onUserRefresh();
+      setMessage('Settings saved');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save settings');
+    }
+  }
+
+  return (
+    <div className="page settings-page">
+      <h1>Settings & security</h1>
+      <div className="settings-grid">
+        <form className="card form-card" onSubmit={(event) => void saveSettings(event)}>
+          <h2>Profile preferences</h2>
+          <label>
+            <span>Name</span>
+            <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
+          </label>
+          <label>
+            <span>Default quality</span>
+            <select className="input" value={defaultQuality} onChange={(e) => setDefaultQuality(e.target.value as QualityTier)}>
+              {QUALITY_OPTIONS.map((option) => <option key={option.tier} value={option.tier}>{option.label}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Default language</span>
+            <input className="input" value={defaultLanguage} onChange={(e) => setDefaultLanguage(e.target.value)} />
+          </label>
+          <label className="checkbox-row">
+            <input type="checkbox" checked={marketingEmails} onChange={(e) => setMarketingEmails(e.target.checked)} />
+            <span>Receive product and credit usage emails</span>
+          </label>
+          {message && <p className="success">{message}</p>}
+          {error && <p className="error">{error}</p>}
+          <button className="btn-primary full" type="submit">Save settings</button>
+        </form>
+        <div className="card">
+          <h2>Security posture</h2>
+          <div className="status-box">
+            Email verified: <strong>{security?.email_verified ? 'yes' : 'local seed'}</strong><br />
+            MFA: <strong>{security?.mfa_enabled ? 'enabled' : 'reserved'}</strong><br />
+            Active API keys: <strong>{security?.active_api_keys ?? 0}</strong>
+          </div>
+          <p className="muted">
+            OAuth, magic link, TOTP MFA, and WebAuthn are reserved for LastSaaS parity and already exposed in the backend capability map.
+          </p>
+          <h3>Recent activity</h3>
+          <MiniAuditList logs={activity.slice(0, 5)} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeveloperPage({ user, onNavigate }: { user: User | null; onNavigate: (view: View) => void }) {
+  const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
+  const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([]);
+  const [availableEvents, setAvailableEvents] = useState<string[]>([]);
+  const [keyName, setKeyName] = useState('Local automation');
+  const [webhookName, setWebhookName] = useState('ComfySkill events');
+  const [webhookUrl, setWebhookUrl] = useState('https://example.com/webhooks/comfyskill');
+  const [secret, setSecret] = useState('');
+  const [error, setError] = useState('');
+
+  async function loadDeveloperData() {
+    const [keys, endpoints] = await Promise.all([developerApi.apiKeys(), developerApi.webhooks()]);
+    setApiKeys(keys.api_keys);
+    setWebhooks(endpoints.webhooks);
+    setAvailableEvents(endpoints.available_events);
+  }
+
+  useEffect(() => {
+    if (user) loadDeveloperData().catch((err) => setError(err instanceof Error ? err.message : 'Failed to load developer settings'));
+  }, [user]);
+
+  if (!user) return <LoginRequired onNavigate={onNavigate} />;
+  const currentUser = user;
+
+  async function createKey(event: FormEvent) {
+    event.preventDefault();
+    setError('');
+    const result = await developerApi.createApiKey({ name: keyName, authority: currentUser.role === 'admin' ? 'admin' : 'user' });
+    setSecret(result.secret);
+    await loadDeveloperData();
+  }
+
+  async function createWebhook(event: FormEvent) {
+    event.preventDefault();
+    setError('');
+    const events = availableEvents.slice(0, 3);
+    const result = await developerApi.createWebhook({ name: webhookName, url: webhookUrl, events });
+    setSecret(result.secret);
+    await loadDeveloperData();
+  }
+
+  return (
+    <div className="page developer-page">
+      <h1>API keys & webhooks</h1>
+      {secret && (
+        <div className="notice">
+          <strong>Copy this secret now:</strong>
+          <code>{secret}</code>
+          <p className="tiny">It is shown once. The backend stores only a SHA-256 hash and preview.</p>
+        </div>
+      )}
+      {error && <p className="error">{error}</p>}
+      <div className="settings-grid">
+        <form className="card form-card" onSubmit={(event) => void createKey(event)}>
+          <h2>API keys</h2>
+          <label>
+            <span>Key name</span>
+            <input className="input" value={keyName} onChange={(e) => setKeyName(e.target.value)} />
+          </label>
+          <button className="btn-primary full" type="submit">Create API key</button>
+          <DataTable
+            headers={['Name', 'Preview', 'Authority', 'Active']}
+            rows={apiKeys.map((key) => [key.name, key.key_preview, key.authority, key.is_active ? 'yes' : 'no'])}
+          />
+        </form>
+        <form className="card form-card" onSubmit={(event) => void createWebhook(event)}>
+          <h2>Outgoing webhooks</h2>
+          <label>
+            <span>Name</span>
+            <input className="input" value={webhookName} onChange={(e) => setWebhookName(e.target.value)} />
+          </label>
+          <label>
+            <span>HTTPS endpoint</span>
+            <input className="input" value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} />
+          </label>
+          <p className="tiny muted">Default events: {availableEvents.slice(0, 3).join(', ') || 'loading'}</p>
+          <button className="btn-secondary full" type="submit">Register webhook</button>
+          <DataTable
+            headers={['Name', 'URL', 'Events', 'Active']}
+            rows={webhooks.map((hook) => [hook.name, hook.url, hook.events.join(', '), hook.is_active ? 'yes' : 'no'])}
+          />
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function HealthPage({ user, onNavigate }: { user: User | null; onNavigate: (view: View) => void }) {
+  const [health, setHealth] = useState<Awaited<ReturnType<typeof platformApi.health>> | null>(null);
+  const [adminHealth, setAdminHealth] = useState<Awaited<ReturnType<typeof adminApi.health>> | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+    platformApi.health().then(setHealth).catch((err) => setError(err instanceof Error ? err.message : 'Failed to load health'));
+    if (user.role === 'admin') adminApi.health().then(setAdminHealth).catch(() => undefined);
+  }, [user]);
+
+  if (!user) return <LoginRequired onNavigate={onNavigate} />;
+
+  return (
+    <div className="page health-page">
+      <h1>Platform health</h1>
+      {error && <p className="error">{error}</p>}
+      <div className="grid three">
+        <div className="card stat-card"><p>{health?.status ?? '...'}</p><span>API status</span></div>
+        <div className="card stat-card"><p>{health?.database ?? '-'}</p><span>MongoDB database</span></div>
+        <div className="card stat-card"><p>{health?.comfyMock ? 'mock' : 'live'}</p><span>ComfyUI mode</span></div>
+      </div>
+      <IntegrationGrid integrations={health?.integrations ?? []} />
+      {adminHealth && (
+        <div className="card">
+          <h2>Runtime</h2>
+          <p className="muted">{adminHealth.runtime} · {adminHealth.goroutines} goroutines · heap {Math.round(adminHealth.heap_alloc / 1024 / 1024)} MB</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IntegrationGrid({ integrations }: { integrations: IntegrationCheck[] }) {
+  return (
+    <div className="grid four">
+      {integrations.map((item) => (
+        <div className="card integration-card" key={item.name}>
+          <span className={`status-dot ${item.status}`} />
+          <h3>{item.name}</h3>
+          <p>{item.status}</p>
+          <small>{item.message}</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AdminPage({ user, onNavigate }: { user: User | null; onNavigate: (view: View) => void }) {
   const [metrics, setMetrics] = useState<Awaited<ReturnType<typeof adminApi.metrics>> | null>(null);
   const [error, setError] = useState('');
@@ -562,7 +822,26 @@ function AdminPage({ user, onNavigate }: { user: User | null; onNavigate: (view:
       <div className="actions">
         <button className="btn-primary" onClick={() => onNavigate('adminJobs')}>All jobs</button>
         <button className="btn-secondary" onClick={() => onNavigate('adminUsers')}>Users</button>
+        <button className="btn-secondary" onClick={() => onNavigate('adminAudit')}>Audit logs</button>
+        <button className="btn-secondary" onClick={() => onNavigate('health')}>System health</button>
       </div>
+    </div>
+  );
+}
+
+function AdminAuditPage({ user }: { user: User | null }) {
+  const [logs, setLogs] = useState<AuditLog[]>([]);
+
+  useEffect(() => {
+    if (user?.role === 'admin') adminApi.auditLogs().then((result) => setLogs(result.logs)).catch(() => undefined);
+  }, [user]);
+
+  if (user?.role !== 'admin') return <Forbidden />;
+
+  return (
+    <div className="page table-page">
+      <h1>Audit logs</h1>
+      <MiniAuditList logs={logs} />
     </div>
   );
 }
@@ -617,6 +896,23 @@ function DataTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function MiniAuditList({ logs }: { logs: AuditLog[] }) {
+  if (!logs.length) return <p className="muted">No activity yet.</p>;
+  return (
+    <div className="audit-list">
+      {logs.map((log) => (
+        <div className="audit-row" key={log.id}>
+          <div>
+            <strong>{log.action}</strong>
+            <p>{log.resource}</p>
+          </div>
+          <small>{new Date(log.created_at).toLocaleString()}</small>
+        </div>
+      ))}
     </div>
   );
 }

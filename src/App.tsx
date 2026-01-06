@@ -185,30 +185,89 @@ function SiteHeader({
 
 function HomePage({ onNavigate }: { onNavigate: (view: View) => void }) {
   return (
-    <div className="page narrow">
-      <section className="card hero-card">
-        <p className="eyebrow">Skill-driven · ComfyUI powered</p>
-        <h1>Create AI visuals without learning nodes</h1>
-        <p>
-          ComfySkill hides ComfyUI complexity. Describe what you need, we pick models,
-          resolution, and workflow. Start with text to image today.
-        </p>
-        <div className="actions">
-          <button className="btn-primary" onClick={() => onNavigate('app')}>Start creating</button>
-          <button className="btn-secondary" onClick={() => onNavigate('pricing')}>View pricing</button>
+    <div className="page landing-page">
+      <section className="landing-hero">
+        <div className="hero-copy">
+          <p className="eyebrow">Skill-driven · ComfyUI powered</p>
+          <h1>Your idea, animated without learning nodes</h1>
+          <p>
+            ComfySkill turns a plain-language idea into a vivid visual workflow. You describe the scene,
+            choose the quality, and the platform handles models, resolution, and ComfyUI details.
+          </p>
+          <div className="hero-links">
+            <button onClick={() => onNavigate('features')}>Features</button>
+            <button onClick={() => onNavigate('pricing')}>Pricing</button>
+            <button onClick={() => onNavigate('billing')}>Billing</button>
+          </div>
+          <div className="actions">
+            <button className="btn-primary" onClick={() => onNavigate('app')}>Turn an idea into motion</button>
+            <button className="btn-secondary" onClick={() => onNavigate('pricing')}>View plans</button>
+          </div>
+        </div>
+        <div className="idea-demo" aria-label="Idea to animation preview">
+          <div className="idea-card">
+            <span className="idea-dot" />
+            <p className="eyebrow small">Idea</p>
+            <strong>A tiny robot chef makes mooncakes under warm lanterns</strong>
+          </div>
+          <div className="flow-arrow">→</div>
+          <div className="animation-card">
+            <div className="preview-stage">
+              <div className="moon" />
+              <div className="lantern lantern-one" />
+              <div className="lantern lantern-two" />
+              <div className="robot">
+                <span className="robot-head" />
+                <span className="robot-body" />
+              </div>
+              <div className="spark spark-one" />
+              <div className="spark spark-two" />
+              <div className="spark spark-three" />
+            </div>
+            <div className="timeline">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <p><strong>Animated scene</strong> · ready to generate</p>
+          </div>
         </div>
       </section>
-      <section className="grid three">
+
+      <section className="section-heading">
+        <p className="eyebrow">Core features</p>
+        <h2>One clear path from imagination to output</h2>
+      </section>
+      <section className="grid three feature-grid">
         {[
-          { title: 'Pick your goal', desc: 'E-commerce, short video, ASMR, and more' },
-          { title: 'Choose quality', desc: 'Good, medium, or budget, no model names' },
-          { title: 'Get results', desc: 'Credits-based, simple billing' },
+          { title: 'Say the goal', desc: 'Use normal language: product shot, story scene, social visual, or animation concept.' },
+          { title: 'Pick simple choices', desc: 'Quality, platform, and style stay understandable. No model names, steps, CFG, or node graphs.' },
+          { title: 'Let workflows run', desc: 'ComfySkill maps your intent to presets, credits, and ComfyUI workflows behind the scenes.' },
         ].map((item) => (
-          <div className="card" key={item.title}>
+          <div className="card feature-card" key={item.title}>
             <h3>{item.title}</h3>
             <p>{item.desc}</p>
           </div>
         ))}
+      </section>
+
+      <section className="card flow-section">
+        <div>
+          <p className="eyebrow">How it works</p>
+          <h2>Describe → choose quality → generate → refine</h2>
+          <p className="muted">
+            The interface stays simple enough to scan in seconds, while the backend keeps the ComfyUI power available for advanced workflows.
+          </p>
+        </div>
+        <div className="flow-steps">
+          {['Idea', 'Skill preset', 'ComfyUI workflow', 'Visual result'].map((step, index) => (
+            <div className="flow-step" key={step}>
+              <span>{index + 1}</span>
+              <strong>{step}</strong>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );

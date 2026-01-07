@@ -187,51 +187,25 @@ function HomePage({ onNavigate }: { onNavigate: (view: View) => void }) {
   return (
     <div className="page landing-page">
       <section className="landing-hero">
+        <HeroCanvas />
         <div className="hero-copy">
           <p className="eyebrow">Skill-driven · ComfyUI powered</p>
-          <h1>Your idea, animated without learning nodes</h1>
-          <p>
-            ComfySkill turns a plain-language idea into a vivid visual workflow. You describe the scene,
-            choose the quality, and the platform handles models, resolution, and ComfyUI details.
-          </p>
+          <h1>Idea to animation.</h1>
+          <p>Describe it. Watch it move.</p>
           <div className="hero-links">
             <button onClick={() => onNavigate('features')}>Features</button>
             <button onClick={() => onNavigate('pricing')}>Pricing</button>
             <button onClick={() => onNavigate('billing')}>Billing</button>
           </div>
           <div className="actions">
-            <button className="btn-primary" onClick={() => onNavigate('app')}>Turn an idea into motion</button>
+            <button className="btn-primary" onClick={() => onNavigate('app')}>Create animation</button>
             <button className="btn-secondary" onClick={() => onNavigate('pricing')}>View plans</button>
           </div>
         </div>
-        <div className="idea-demo" aria-label="Idea to animation preview">
-          <div className="idea-card">
-            <span className="idea-dot" />
-            <p className="eyebrow small">Idea</p>
-            <strong>A tiny robot chef makes mooncakes under warm lanterns</strong>
-          </div>
-          <div className="flow-arrow">→</div>
-          <div className="animation-card">
-            <div className="preview-stage">
-              <div className="moon" />
-              <div className="lantern lantern-one" />
-              <div className="lantern lantern-two" />
-              <div className="robot">
-                <span className="robot-head" />
-                <span className="robot-body" />
-              </div>
-              <div className="spark spark-one" />
-              <div className="spark spark-two" />
-              <div className="spark spark-three" />
-            </div>
-            <div className="timeline">
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            <p><strong>Animated scene</strong> · ready to generate</p>
-          </div>
+        <div className="hero-caption" aria-hidden="true">
+          <span>Idea</span>
+          <span>Workflow</span>
+          <span>Motion</span>
         </div>
       </section>
 
@@ -271,6 +245,141 @@ function HomePage({ onNavigate }: { onNavigate: (view: View) => void }) {
       </section>
     </div>
   );
+}
+
+function HeroCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    const drawingCanvas = canvas;
+    const ctx = context;
+
+    type Particle = {
+      angle: number;
+      orbit: number;
+      speed: number;
+      size: number;
+      phase: number;
+    };
+
+    const particles: Particle[] = Array.from({ length: 80 }, (_, index) => ({
+      angle: index * 0.55,
+      orbit: 0.16 + (index % 12) * 0.018,
+      speed: 0.35 + (index % 7) * 0.035,
+      size: 1.2 + (index % 5) * 0.45,
+      phase: index * 0.21,
+    }));
+
+    let animationFrame = 0;
+    let width = 0;
+    let height = 0;
+
+    function resize() {
+      const rect = drawingCanvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      width = rect.width;
+      height = rect.height;
+      drawingCanvas.width = Math.floor(width * ratio);
+      drawingCanvas.height = Math.floor(height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    }
+
+    function drawOrb(x: number, y: number, radius: number, color: string, glow: string) {
+      const gradient = ctx.createRadialGradient(x - radius * 0.25, y - radius * 0.25, 0, x, y, radius);
+      gradient.addColorStop(0, '#ffffff');
+      gradient.addColorStop(0.35, color);
+      gradient.addColorStop(1, glow);
+      ctx.fillStyle = gradient;
+      ctx.shadowColor = glow;
+      ctx.shadowBlur = radius * 0.7;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function draw(time: number) {
+      const t = time * 0.001;
+      ctx.clearRect(0, 0, width, height);
+
+      const ideaX = width * 0.24;
+      const ideaY = height * 0.48;
+      const motionX = width * 0.76;
+      const motionY = height * 0.5;
+      const pulse = Math.sin(t * 2) * 0.5 + 0.5;
+
+      const background = ctx.createLinearGradient(0, 0, width, height);
+      background.addColorStop(0, 'rgba(126, 200, 227, 0.22)');
+      background.addColorStop(0.5, 'rgba(255, 244, 184, 0.18)');
+      background.addColorStop(1, 'rgba(39, 131, 165, 0.18)');
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, width, height);
+
+      for (let i = 0; i < 8; i += 1) {
+        const progress = ((t * 0.16 + i / 8) % 1);
+        const x = ideaX + (motionX - ideaX) * progress;
+        const wave = Math.sin(progress * Math.PI * 2 + t * 2.4 + i) * height * 0.08;
+        const y = ideaY + (motionY - ideaY) * progress + wave;
+
+        ctx.strokeStyle = `rgba(39, 131, 165, ${0.1 + progress * 0.22})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(ideaX, ideaY);
+        ctx.quadraticCurveTo(width * 0.5, height * (0.24 + i * 0.025), motionX, motionY);
+        ctx.stroke();
+
+        ctx.fillStyle = `rgba(255, 244, 184, ${0.35 + progress * 0.65})`;
+        ctx.beginPath();
+        ctx.arc(x, y, 3 + progress * 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      particles.forEach((particle) => {
+        const radius = Math.min(width, height) * particle.orbit;
+        const x = motionX + Math.cos(t * particle.speed + particle.angle) * radius * 1.2;
+        const y = motionY + Math.sin(t * particle.speed + particle.angle) * radius * 0.65;
+        const alpha = 0.25 + (Math.sin(t * 2.2 + particle.phase) + 1) * 0.28;
+
+        ctx.fillStyle = `rgba(255, 244, 184, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(x, y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      drawOrb(ideaX, ideaY, 54 + pulse * 10, '#fff4b8', 'rgba(255, 244, 184, 0.45)');
+      drawOrb(motionX, motionY, 96 + pulse * 12, '#7ec8e3', 'rgba(39, 131, 165, 0.38)');
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.68)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(motionX, motionY, 48, t, t + Math.PI * 1.4);
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(26, 43, 60, 0.78)';
+      ctx.font = '700 16px Inter, sans-serif';
+      ctx.fillText('IDEA', ideaX - 22, ideaY + 6);
+      ctx.font = '800 22px Inter, sans-serif';
+      ctx.fillText('ANIMATION', motionX - 62, motionY + 8);
+
+      animationFrame = requestAnimationFrame(draw);
+    }
+
+    resize();
+    animationFrame = requestAnimationFrame(draw);
+    window.addEventListener('resize', resize);
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrame);
+    };
+  }, []);
+
+  return <canvas className="hero-canvas" ref={canvasRef} aria-hidden="true" />;
 }
 
 function FeaturesPage() {

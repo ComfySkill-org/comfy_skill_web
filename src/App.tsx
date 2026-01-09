@@ -1,3 +1,4 @@
+import { animate } from 'animejs';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import {
   adminApi,
@@ -34,6 +35,50 @@ type View =
   | 'adminUsers'
   | 'adminAudit';
 
+const VIEW_ROUTES: Record<View, string> = {
+  home: '/',
+  features: '/features',
+  pricing: '/pricing',
+  login: '/login',
+  app: '/create',
+  billing: '/bill',
+  settings: '/setting',
+  developer: '/developer',
+  health: '/health',
+  admin: '/admin',
+  adminJobs: '/admin/jobs',
+  adminUsers: '/admin/users',
+  adminAudit: '/admin/audit',
+};
+
+const ROUTE_VIEWS: Record<string, View> = {
+  '/': 'home',
+  '/features': 'features',
+  '/pricing': 'pricing',
+  '/login': 'login',
+  '/app': 'app',
+  '/create': 'app',
+  '/bill': 'billing',
+  '/billing': 'billing',
+  '/setting': 'settings',
+  '/settings': 'settings',
+  '/developer': 'developer',
+  '/health': 'health',
+  '/admin': 'admin',
+  '/admin/jobs': 'adminJobs',
+  '/admin/users': 'adminUsers',
+  '/admin/audit': 'adminAudit',
+};
+
+function viewFromPath(pathname: string): View {
+  const normalized = pathname.replace(/\/+$/, '') || '/';
+  return ROUTE_VIEWS[normalized] || 'home';
+}
+
+function pathForView(view: View) {
+  return VIEW_ROUTES[view];
+}
+
 const QUALITY_OPTIONS: { tier: QualityTier; label: string; hint: string }[] = [
   { tier: 'premium', label: 'Good', hint: 'Best quality · higher cost' },
   { tier: 'standard', label: 'Medium', hint: 'Balanced' },
@@ -49,12 +94,29 @@ const STRIPE_TEST_CARD = {
 };
 
 export default function App() {
-  const [view, setView] = useState<View>('home');
+  const [view, setView] = useState<View>(() => viewFromPath(window.location.pathname));
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (getToken()) authApi.me().then(setUser).catch(() => setToken(null));
   }, []);
+
+  useEffect(() => {
+    function handlePopState() {
+      setView(viewFromPath(window.location.pathname));
+    }
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  function navigate(nextView: View) {
+    const nextPath = pathForView(nextView);
+    setView(nextView);
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState({ view: nextView }, '', nextPath);
+    }
+  }
 
   async function refreshUser() {
     if (!getToken()) return;
@@ -65,36 +127,36 @@ export default function App() {
     const response = await authApi.login({ email, password });
     setToken(response.access_token);
     setUser(await authApi.me());
-    setView('app');
+    navigate('app');
   }
 
   async function handleRegister(email: string, password: string, name: string) {
     const response = await authApi.register({ email, password, name });
     setToken(response.access_token);
     setUser(await authApi.me());
-    setView('app');
+    navigate('app');
   }
 
   function logout() {
     setToken(null);
     setUser(null);
-    setView('home');
+    navigate('home');
   }
 
   return (
     <>
-      <SiteHeader user={user} view={view} onNavigate={setView} onLogout={logout} />
+      <SiteHeader user={user} view={view} onNavigate={navigate} onLogout={logout} />
       <main>
-        {view === 'home' && <HomePage onNavigate={setView} />}
+        {view === 'home' && <HomePage onNavigate={navigate} />}
         {view === 'features' && <FeaturesPage />}
-        {view === 'pricing' && <PricingPage onNavigate={setView} />}
+        {view === 'pricing' && <PricingPage onNavigate={navigate} />}
         {view === 'login' && <LoginPage onLogin={handleLogin} onRegister={handleRegister} />}
-        {view === 'app' && <AppPage user={user} onNavigate={setView} onUserRefresh={refreshUser} />}
-        {view === 'billing' && <BillingPage user={user} onNavigate={setView} />}
-        {view === 'settings' && <SettingsPage user={user} onNavigate={setView} onUserRefresh={refreshUser} />}
-        {view === 'developer' && <DeveloperPage user={user} onNavigate={setView} />}
-        {view === 'health' && <HealthPage user={user} onNavigate={setView} />}
-        {view === 'admin' && <AdminPage user={user} onNavigate={setView} />}
+        {view === 'app' && <AppPage user={user} onNavigate={navigate} onUserRefresh={refreshUser} />}
+        {view === 'billing' && <BillingPage user={user} onNavigate={navigate} />}
+        {view === 'settings' && <SettingsPage user={user} onNavigate={navigate} onUserRefresh={refreshUser} />}
+        {view === 'developer' && <DeveloperPage user={user} onNavigate={navigate} />}
+        {view === 'health' && <HealthPage user={user} onNavigate={navigate} />}
+        {view === 'admin' && <AdminPage user={user} onNavigate={navigate} />}
         {view === 'adminJobs' && <AdminJobsPage user={user} />}
         {view === 'adminUsers' && <AdminUsersPage user={user} />}
         {view === 'adminAudit' && <AdminAuditPage user={user} />}
@@ -202,11 +264,7 @@ function HomePage({ onNavigate }: { onNavigate: (view: View) => void }) {
             <button className="btn-secondary" onClick={() => onNavigate('pricing')}>View plans</button>
           </div>
         </div>
-        <div className="hero-caption" aria-hidden="true">
-          <span>Idea</span>
-          <span>Workflow</span>
-          <span>Motion</span>
-        </div>
+        <HeroShowcase />
       </section>
 
       <section className="section-heading">
@@ -243,6 +301,109 @@ function HomePage({ onNavigate }: { onNavigate: (view: View) => void }) {
           ))}
         </div>
       </section>
+    </div>
+  );
+}
+
+function HeroShowcase() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+
+    const animations: ReturnType<typeof animate>[] = [];
+    const showcaseWindow = root.querySelector('.showcase-window');
+
+    if (showcaseWindow) {
+      animations.push(animate(showcaseWindow, {
+        translateY: [-10, 10],
+        rotate: [-0.6, 0.6],
+        duration: 4200,
+        alternate: true,
+        loop: true,
+        ease: 'inOutSine',
+      }));
+    }
+
+    animations.push(
+      animate(root.querySelectorAll('.showcase-orb'), {
+        scale: [0.72, 1.15],
+        opacity: [0.42, 1],
+        delay: (_, index) => (index ?? 0) * 240,
+        duration: 1800,
+        alternate: true,
+        loop: true,
+        ease: 'inOutQuad',
+      }),
+      animate(root.querySelectorAll('.energy-dot'), {
+        translateX: [0, 420],
+        translateY: (_, index) => [0, (index ?? 0) % 2 === 0 ? -74 : 58],
+        scale: [0.5, 1.25, 0.55],
+        opacity: [0, 1, 0],
+        delay: (_, index) => (index ?? 0) * 260,
+        duration: 2600,
+        loop: true,
+        ease: 'inOutCubic',
+      }),
+      animate(root.querySelectorAll('.frame-strip span'), {
+        scaleY: [0.38, 1],
+        opacity: [0.35, 1],
+        delay: (_, index) => (index ?? 0) * 140,
+        duration: 1200,
+        alternate: true,
+        loop: true,
+        ease: 'inOutSine',
+      }),
+      animate(root.querySelectorAll('.preview-layer'), {
+        translateY: (_, index) => [(index ?? 0) * 6, (index ?? 0) * -5],
+        translateX: (_, index) => [(index ?? 0) * -4, (index ?? 0) * 5],
+        delay: (_, index) => (index ?? 0) * 180,
+        duration: 3200,
+        alternate: true,
+        loop: true,
+        ease: 'inOutSine',
+      }),
+    );
+
+    return () => animations.forEach((animation) => animation.revert());
+  }, []);
+
+  return (
+    <div className="hero-showcase" ref={ref} aria-label="Idea to animation visual workflow">
+      <div className="showcase-badge">Live visual workflow</div>
+      <div className="idea-chip">
+        <span className="showcase-orb" />
+        <div>
+          <p>Idea</p>
+          <strong>Moonlit robot chef</strong>
+        </div>
+      </div>
+      <div className="energy-field" aria-hidden="true">
+        {Array.from({ length: 7 }, (_, index) => <span className="energy-dot" key={index} />)}
+      </div>
+      <div className="showcase-window">
+        <div className="preview-sky">
+          <span className="preview-layer layer-moon" />
+          <span className="preview-layer layer-mountain" />
+          <span className="preview-layer layer-mountain second" />
+          <span className="preview-layer layer-character" />
+          <span className="preview-layer layer-glow" />
+        </div>
+        <div className="frame-strip" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => <span key={index} />)}
+        </div>
+        <div className="render-status">
+          <span className="showcase-orb" />
+          <strong>Animating</strong>
+          <small>24 frames</small>
+        </div>
+      </div>
+      <div className="hero-caption" aria-hidden="true">
+        <span>Idea</span>
+        <span>Workflow</span>
+        <span>Motion</span>
+      </div>
     </div>
   );
 }

@@ -11,6 +11,7 @@
   },
   "_comment_lint": "Temporarily placeholdered during early development. Restore to `eslint .` after adding ESLint config and dependencies.",
   "dependencies": {
+    "animejs": "^4.5.0",
     "axios": "^1.13.5",
     "lucide-react": "^0.575.0",
     "react": "^19.2.0",

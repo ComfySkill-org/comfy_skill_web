@@ -197,6 +197,253 @@ main {
   text-underline-offset: 0.25rem;
 }
 
+.hero-showcase {
+  bottom: 2rem;
+  height: min(78%, 34rem);
+  pointer-events: none;
+  position: absolute;
+  right: 2rem;
+  width: min(48vw, 34rem);
+  z-index: 2;
+}
+
+.showcase-badge,
+.idea-chip,
+.render-status,
+.hero-caption {
+  backdrop-filter: blur(18px);
+}
+
+.showcase-badge {
+  background: rgba(26, 43, 60, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  box-shadow: 0 18px 48px rgba(26, 43, 60, 0.16);
+  color: white;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.65rem 0.95rem;
+  position: absolute;
+  right: 1rem;
+  text-transform: uppercase;
+  top: 0;
+  z-index: 4;
+}
+
+.idea-chip {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 1.25rem;
+  box-shadow: 0 24px 70px rgba(26, 43, 60, 0.14);
+  display: flex;
+  gap: 0.8rem;
+  left: 0;
+  padding: 0.85rem 1rem;
+  position: absolute;
+  top: 18%;
+  width: 16rem;
+  z-index: 4;
+}
+
+.idea-chip p,
+.render-status small {
+  color: var(--skill-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.idea-chip strong,
+.render-status strong {
+  color: var(--skill-ink);
+  display: block;
+  margin-top: 0.15rem;
+}
+
+.showcase-orb {
+  background:
+    radial-gradient(circle at 32% 28%, white, rgba(255, 244, 184, 0.95) 34%, rgba(39, 131, 165, 0.82));
+  border-radius: 999px;
+  box-shadow: 0 0 30px rgba(255, 244, 184, 0.78);
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 2.25rem;
+  width: 2.25rem;
+}
+
+.energy-field {
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: 2;
+}
+
+.energy-dot {
+  background: var(--skill-yellow);
+  border-radius: 999px;
+  box-shadow: 0 0 26px rgba(255, 244, 184, 0.9), 0 0 60px rgba(126, 200, 227, 0.55);
+  height: 0.72rem;
+  left: 5.2rem;
+  position: absolute;
+  top: 32%;
+  width: 0.72rem;
+}
+
+.energy-dot:nth-child(2) {
+  top: 40%;
+}
+
+.energy-dot:nth-child(3) {
+  top: 48%;
+}
+
+.energy-dot:nth-child(4) {
+  top: 56%;
+}
+
+.energy-dot:nth-child(5) {
+  top: 64%;
+}
+
+.energy-dot:nth-child(6) {
+  top: 37%;
+}
+
+.energy-dot:nth-child(7) {
+  top: 58%;
+}
+
+.showcase-window {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(126, 200, 227, 0.18)),
+    rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 2rem;
+  box-shadow: 0 36px 120px rgba(26, 43, 60, 0.22);
+  bottom: 2.7rem;
+  overflow: hidden;
+  padding: 0.9rem;
+  position: absolute;
+  right: 0;
+  width: min(100%, 29rem);
+  z-index: 3;
+}
+
+.showcase-window::before {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0));
+  content: "";
+  height: 55%;
+  left: -18%;
+  position: absolute;
+  top: -20%;
+  transform: rotate(-14deg);
+  width: 70%;
+  z-index: 3;
+}
+
+.preview-sky {
+  background:
+    radial-gradient(circle at 28% 20%, rgba(255, 244, 184, 0.95), transparent 14%),
+    linear-gradient(160deg, #15445a, #2783a5 46%, #fff4b8 118%);
+  border-radius: 1.35rem;
+  height: 21rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview-layer {
+  position: absolute;
+}
+
+.layer-moon {
+  background: #fff8ce;
+  border-radius: 999px;
+  box-shadow: 0 0 60px rgba(255, 244, 184, 0.9);
+  height: 4.6rem;
+  right: 3.2rem;
+  top: 2.2rem;
+  width: 4.6rem;
+}
+
+.layer-mountain {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.76), rgba(126, 200, 227, 0.24));
+  border-radius: 2rem 2rem 0 0;
+  bottom: -2.8rem;
+  clip-path: polygon(0 100%, 40% 16%, 58% 56%, 78% 0, 100% 100%);
+  height: 12rem;
+  left: -1rem;
+  width: 68%;
+}
+
+.layer-mountain.second {
+  background: linear-gradient(145deg, rgba(255, 244, 184, 0.78), rgba(126, 200, 227, 0.18));
+  bottom: -3.4rem;
+  left: auto;
+  right: -1rem;
+  transform: scale(0.9);
+}
+
+.layer-character {
+  background:
+    radial-gradient(circle at 50% 18%, white 0 13%, transparent 14%),
+    linear-gradient(180deg, white 0 58%, rgba(255, 244, 184, 0.95) 59% 100%);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 2.4rem 2.4rem 1.25rem 1.25rem;
+  bottom: 3.2rem;
+  box-shadow: 0 26px 56px rgba(26, 43, 60, 0.25);
+  height: 7.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5.4rem;
+}
+
+.layer-glow {
+  background: radial-gradient(circle, rgba(255, 244, 184, 0.8), transparent 64%);
+  bottom: 0.2rem;
+  height: 10rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18rem;
+}
+
+.frame-strip {
+  display: grid;
+  gap: 0.34rem;
+  grid-template-columns: repeat(12, 1fr);
+  margin: 0.85rem 0 0.2rem;
+}
+
+.frame-strip span {
+  background: linear-gradient(180deg, var(--skill-blue-dark), var(--skill-blue));
+  border-radius: 999px;
+  height: 2.3rem;
+  transform-origin: bottom;
+}
+
+.render-status {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 1.1rem;
+  bottom: 1rem;
+  box-shadow: 0 18px 55px rgba(26, 43, 60, 0.14);
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.8rem 0.9rem;
+  position: absolute;
+  right: 1rem;
+  z-index: 4;
+}
+
+.render-status .showcase-orb {
+  height: 1.4rem;
+  width: 1.4rem;
+}
+
 .hero-caption {
   align-items: center;
   background: rgba(255, 255, 255, 0.7);
@@ -212,9 +459,10 @@ main {
   letter-spacing: 0.08em;
   padding: 0.7rem 0.95rem;
   position: absolute;
-  right: 2rem;
+  bottom: 0;
+  right: 0;
   text-transform: uppercase;
-  z-index: 2;
+  z-index: 4;
 }
 
 .hero-caption span:not(:last-child)::after {
@@ -797,7 +1045,7 @@ th {
 
   .landing-hero {
     border-radius: 1.35rem;
-    min-height: 68vh;
+    min-height: 48rem;
     padding: 1rem;
     padding-top: 1rem;
   }
@@ -809,16 +1057,51 @@ th {
 
   .hero-copy {
     padding: 1.2rem;
+    width: min(100%, 24rem);
   }
 
   .hero-copy h1 {
     font-size: clamp(2.45rem, 14vw, 3.6rem);
   }
 
-  .hero-caption {
+  .hero-showcase {
     bottom: 1rem;
+    height: 22rem;
     left: 1rem;
-    right: auto;
+    right: 1rem;
+    width: auto;
+  }
+
+  .showcase-badge {
+    display: none;
+  }
+
+  .idea-chip {
+    top: 0;
+    width: min(100%, 15rem);
+  }
+
+  .showcase-window {
+    bottom: 2.8rem;
+    width: min(100%, 22rem);
+  }
+
+  .preview-sky {
+    height: 13rem;
+  }
+
+  .energy-dot {
+    left: 3rem;
+  }
+
+  .render-status {
+    bottom: 0.8rem;
+  }
+
+  .hero-caption {
+    bottom: 0;
+    left: auto;
+    right: 0;
   }
 
   .header-inner,

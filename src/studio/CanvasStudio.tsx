@@ -418,6 +418,13 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
     [onUserRefresh, patchBlock],
   );
 
+  const generatePendingBlocks = useCallback(async () => {
+    const pending = blocks.filter((block) => block.status === 'idle' || block.status === 'ready' || block.status === 'failed');
+    for (const block of pending) {
+      await generateBlock(block);
+    }
+  }, [blocks, generateBlock]);
+
   if (!user) {
     return (
       <div className="page narrow center">
@@ -652,6 +659,19 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
             }}
           >
             Gen
+          </button>
+          <button
+            type="button"
+            className="studio-toolbar-generate-all"
+            data-testid="studio-generate-all"
+            title="Generate all pending shots"
+            disabled={
+              blocks.every((block) => block.status === 'done' || block.status === 'generating') ||
+              blocks.some((block) => block.status === 'generating')
+            }
+            onClick={() => void generatePendingBlocks()}
+          >
+            Gen all
           </button>
           <button
             type="button"

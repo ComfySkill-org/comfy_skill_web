@@ -1472,6 +1472,11 @@ th {
   color: #fff4b8;
 }
 
+.studio-toolbar-generate-all:not(:disabled) {
+  background: rgba(255, 244, 184, 0.2);
+  color: #fff8d0;
+}
+
 .studio-toolbar-reset {
   color: rgba(255, 180, 180, 0.9) !important;
 }

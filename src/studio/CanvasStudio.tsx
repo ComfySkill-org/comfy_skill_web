@@ -465,7 +465,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
             </button>
           </div>
           <span className="studio-shot-count" data-testid="studio-shot-count">
-            {blocks.length} shots
+            {blocks.filter((block) => block.status === 'done').length}/{blocks.length} done
           </span>
           <span className="credit-badge">{user.balance_credits} credits</span>
         </div>

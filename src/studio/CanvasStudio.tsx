@@ -306,6 +306,22 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
     setAssistantNote('画布已重置。用一句话描述今天的故事，重新落到镜头块上。');
   }, []);
 
+  const moveSelectedInSequence = useCallback(
+    (direction: -1 | 1) => {
+      if (!selectedBlockId) return;
+      setBlocks((current) => {
+        const index = current.findIndex((block) => block.id === selectedBlockId);
+        const nextIndex = index + direction;
+        if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return current;
+        const next = [...current];
+        const [item] = next.splice(index, 1);
+        next.splice(nextIndex, 0, item);
+        return next;
+      });
+    },
+    [selectedBlockId],
+  );
+
   const submitAssistant = useCallback(
     (event: FormEvent) => {
       event.preventDefault();
@@ -636,6 +652,24 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
             }}
           >
             Gen
+          </button>
+          <button
+            type="button"
+            data-testid="studio-move-earlier"
+            title="Move earlier in story"
+            disabled={!selectedBlockId || blocks[0]?.id === selectedBlockId}
+            onClick={() => moveSelectedInSequence(-1)}
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            data-testid="studio-move-later"
+            title="Move later in story"
+            disabled={!selectedBlockId || blocks[blocks.length - 1]?.id === selectedBlockId}
+            onClick={() => moveSelectedInSequence(1)}
+          >
+            →
           </button>
           <span className="studio-toolbar-sep" aria-hidden="true" />
           <button type="button" title="Zoom out" data-testid="studio-zoom-out" onClick={() => zoomBy(-0.1)}>

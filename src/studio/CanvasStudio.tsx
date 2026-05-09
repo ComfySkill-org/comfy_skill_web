@@ -482,6 +482,15 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
                 );
               })}
             </svg>
+            {blocks.length === 0 && (
+              <div className="studio-empty-state" data-testid="studio-empty-state">
+                <p className="studio-empty">画布还是空的</p>
+                <p className="studio-empty-hint">用底部 + 添加镜头，或在右侧助手里描述故事落到画布。</p>
+                <button type="button" className="btn-primary" onClick={addStoryBlock}>
+                  添加第一个镜头
+                </button>
+              </div>
+            )}
             {blocks.map((block) => (
               <article
                 key={block.id}

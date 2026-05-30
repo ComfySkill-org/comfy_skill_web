@@ -448,6 +448,9 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
               故事板
             </button>
           </div>
+          <span className="studio-shot-count" data-testid="studio-shot-count">
+            {blocks.length} shots
+          </span>
           <span className="credit-badge">{user.balance_credits} credits</span>
         </div>
       </header>

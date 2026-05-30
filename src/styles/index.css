@@ -1188,6 +1188,16 @@ th {
   color: #dff4fb;
 }
 
+.studio-shot-count {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  color: rgba(243, 246, 248, 0.75);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+}
+
 .studio-stage.studio-view-workflow .studio-link-path {
   stroke: rgba(255, 244, 184, 0.45);
   stroke-dasharray: 6 6;

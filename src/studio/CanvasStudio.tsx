@@ -312,13 +312,35 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
       const brief = assistantDraft.trim();
       if (!brief) return;
       const title = brief.length > 28 ? `${brief.slice(0, 28)}…` : brief;
+
+      if (selectedBlockId) {
+        setBlocks((current) =>
+          current.map((block) =>
+            block.id === selectedBlockId
+              ? {
+                  ...block,
+                  title: title || block.title,
+                  synopsis: brief,
+                  status: block.status === 'generating' ? block.status : 'ready',
+                  error: undefined,
+                }
+              : block,
+          ),
+        );
+        setAssistantNote('已更新当前选中的镜头块。可以继续改写，或点 Gen 生成画面。');
+        setAssistantDraft('');
+        return;
+      }
+
       setBlocks((current) => {
         const index = current.length + 1;
         const offset = (index % 4) * 40;
+        const id = `shot-${Date.now()}`;
+        setSelectedBlockId(id);
         return [
           ...current,
           {
-            id: `shot-${Date.now()}`,
+            id,
             title: title || `Shot ${index}`,
             synopsis: brief,
             status: 'ready' as const,
@@ -331,7 +353,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
       setAssistantNote('已把这段描述落到一个新镜头块。继续补充下一拍，或去画布上调整位置。');
       setAssistantDraft('');
     },
-    [assistantDraft],
+    [assistantDraft, selectedBlockId],
   );
 
   const patchBlock = useCallback((blockId: string, patch: Partial<StoryBlock>) => {
@@ -653,7 +675,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
             />
           </label>
           <button className="btn-primary full" type="submit">
-            落到画布
+            {selectedBlockId ? '更新选中镜头' : '落到画布'}
           </button>
         </form>
       </aside>

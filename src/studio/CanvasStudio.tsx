@@ -417,6 +417,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
   }
 
   const zoomPercent = Math.round(zoom * 100);
+  const selectedBlock = blocks.find((block) => block.id === selectedBlockId) ?? null;
 
   return (
     <div className="studio-root" data-testid="studio-canvas">
@@ -651,6 +652,18 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
           <h2>新对话</h2>
         </div>
         <p className="studio-assistant-note">{assistantNote}</p>
+        <div className="studio-assistant-selection" data-testid="studio-assistant-selection">
+          <p className="studio-assistant-label">当前镜头</p>
+          {selectedBlock ? (
+            <>
+              <strong>{selectedBlock.title}</strong>
+              <p>{selectedBlock.synopsis}</p>
+              <span className={`story-block-status status-${selectedBlock.status}`}>{selectedBlock.status}</span>
+            </>
+          ) : (
+            <p className="studio-assistant-selection-empty">未选中镜头。点选画布上的块，或直接落到新镜头。</p>
+          )}
+        </div>
         <div className="studio-assistant-templates">
           <p className="studio-assistant-label">用产品模板起稿</p>
           <button type="button" onClick={() => setAssistantDraft('皮克斯风短片：一只迷路的纸飞机找回主人')}>

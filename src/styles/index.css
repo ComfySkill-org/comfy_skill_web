@@ -1247,6 +1247,31 @@ th {
   padding: 0.85rem;
 }
 
+.studio-assistant-selection {
+  background: rgba(126, 200, 227, 0.08);
+  border: 1px solid rgba(126, 200, 227, 0.18);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.85rem;
+}
+
+.studio-assistant-selection strong {
+  font-size: 0.9rem;
+}
+
+.studio-assistant-selection p {
+  color: rgba(243, 246, 248, 0.7);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.studio-assistant-selection-empty {
+  color: rgba(243, 246, 248, 0.55) !important;
+}
+
 .studio-assistant-label {
   color: rgba(243, 246, 248, 0.5);
   font-size: 0.72rem;

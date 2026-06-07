@@ -293,6 +293,19 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
     });
   }, [selectedBlockId]);
 
+  const resetStudioBoard = useCallback(() => {
+    setBlocks(SEED_BLOCKS.map((block) => ({ ...block })));
+    setProjectTitle('Untitled project');
+    setStudioView('storyboard');
+    setSelectedBlockId(null);
+    setParamsBlockId(null);
+    setDraggingBlockId(null);
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+    setAssistantDraft('');
+    setAssistantNote('画布已重置。用一句话描述今天的故事，重新落到镜头块上。');
+  }, []);
+
   const submitAssistant = useCallback(
     (event: FormEvent) => {
       event.preventDefault();
@@ -598,6 +611,15 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
           </button>
           <button type="button" title="Reset zoom" onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}>
             Fit
+          </button>
+          <button
+            type="button"
+            className="studio-toolbar-reset"
+            data-testid="studio-reset-board"
+            title="Reset board"
+            onClick={resetStudioBoard}
+          >
+            Reset
           </button>
         </div>
       </div>

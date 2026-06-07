@@ -1418,6 +1418,10 @@ th {
   color: #fff4b8;
 }
 
+.studio-toolbar-reset {
+  color: rgba(255, 180, 180, 0.9) !important;
+}
+
 .studio-toolbar-sep {
   align-self: stretch;
   background: rgba(255, 255, 255, 0.12);

@@ -249,7 +249,24 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
       if ((event.key === 'Delete' || event.key === 'Backspace') && selectedBlockId) {
         event.preventDefault();
         removeStoryBlock(selectedBlockId);
+        return;
       }
+
+      if (!selectedBlockId) return;
+      const step = event.shiftKey ? 24 : 8;
+      let dx = 0;
+      let dy = 0;
+      if (event.key === 'ArrowLeft') dx = -step;
+      if (event.key === 'ArrowRight') dx = step;
+      if (event.key === 'ArrowUp') dy = -step;
+      if (event.key === 'ArrowDown') dy = step;
+      if (!dx && !dy) return;
+      event.preventDefault();
+      setBlocks((current) =>
+        current.map((block) =>
+          block.id === selectedBlockId ? { ...block, x: block.x + dx, y: block.y + dy } : block,
+        ),
+      );
     }
 
     window.addEventListener('keydown', onKeyDown);

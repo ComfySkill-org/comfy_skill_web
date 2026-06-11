@@ -230,6 +230,32 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
     setSelectedBlockId((current) => (current === blockId ? null : current));
   }, []);
 
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      const typing =
+        tag === 'input' ||
+        tag === 'textarea' ||
+        Boolean(target?.isContentEditable);
+      if (typing) return;
+
+      if (event.key === 'Escape') {
+        setSelectedBlockId(null);
+        setParamsBlockId(null);
+        return;
+      }
+
+      if ((event.key === 'Delete' || event.key === 'Backspace') && selectedBlockId) {
+        event.preventDefault();
+        removeStoryBlock(selectedBlockId);
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [removeStoryBlock, selectedBlockId]);
+
   const duplicateSelectedBlock = useCallback(() => {
     if (!selectedBlockId) return;
     setBlocks((current) => {

@@ -1413,6 +1413,11 @@ th {
   line-height: 1;
 }
 
+.studio-toolbar-generate:not(:disabled) {
+  background: rgba(255, 244, 184, 0.14);
+  color: #fff4b8;
+}
+
 .studio-toolbar-sep {
   align-self: stretch;
   background: rgba(255, 255, 255, 0.12);

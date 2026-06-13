@@ -530,6 +530,22 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
           >
             Dup
           </button>
+          <button
+            type="button"
+            className="studio-toolbar-generate"
+            data-testid="studio-generate-selected"
+            title="Generate selected block"
+            disabled={
+              !selectedBlockId ||
+              blocks.find((block) => block.id === selectedBlockId)?.status === 'generating'
+            }
+            onClick={() => {
+              const selected = blocks.find((block) => block.id === selectedBlockId);
+              if (selected) void generateBlock(selected);
+            }}
+          >
+            Gen
+          </button>
           <span className="studio-toolbar-sep" aria-hidden="true" />
           <button type="button" title="Zoom out" data-testid="studio-zoom-out" onClick={() => zoomBy(-0.1)}>
             −

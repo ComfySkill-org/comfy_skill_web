@@ -230,6 +230,26 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
     setSelectedBlockId((current) => (current === blockId ? null : current));
   }, []);
 
+  const duplicateSelectedBlock = useCallback(() => {
+    if (!selectedBlockId) return;
+    setBlocks((current) => {
+      const source = current.find((block) => block.id === selectedBlockId);
+      if (!source) return current;
+      const copy: StoryBlock = {
+        ...source,
+        id: `shot-${Date.now()}`,
+        title: `${source.title} copy`,
+        status: source.status === 'generating' ? 'ready' : source.status,
+        jobId: undefined,
+        error: undefined,
+        x: source.x + 36,
+        y: source.y + 36,
+      };
+      setSelectedBlockId(copy.id);
+      return [...current, copy];
+    });
+  }, [selectedBlockId]);
+
   const submitAssistant = useCallback(
     (event: FormEvent) => {
       event.preventDefault();
@@ -500,6 +520,15 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
             onClick={addStoryBlock}
           >
             +
+          </button>
+          <button
+            type="button"
+            data-testid="studio-duplicate-block"
+            title="Duplicate selected block"
+            disabled={!selectedBlockId}
+            onClick={duplicateSelectedBlock}
+          >
+            Dup
           </button>
           <span className="studio-toolbar-sep" aria-hidden="true" />
           <button type="button" title="Zoom out" data-testid="studio-zoom-out" onClick={() => zoomBy(-0.1)}>

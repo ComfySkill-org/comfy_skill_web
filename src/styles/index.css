@@ -1401,6 +1401,11 @@ th {
   color: #fff;
 }
 
+.studio-toolbar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
 .studio-toolbar-add {
   background: rgba(126, 200, 227, 0.22) !important;
   color: #dff4fb !important;

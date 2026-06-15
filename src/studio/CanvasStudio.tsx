@@ -84,6 +84,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
   const [blocks, setBlocks] = useState<StoryBlock[]>(saved?.blocks ?? SEED_BLOCKS);
   const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null);
   const [paramsBlockId, setParamsBlockId] = useState<string | null>(null);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [assistantDraft, setAssistantDraft] = useState('');
   const [assistantNote, setAssistantNote] = useState('用一句话描述今天的故事，我会帮你落到画布上的镜头块。');
   const [projectTitle, setProjectTitle] = useState(saved?.projectTitle ?? 'Untitled project');
@@ -117,6 +118,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
   const onViewportPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       if (event.button !== 0 || blockDragRef.current) return;
+      setSelectedBlockId(null);
       event.currentTarget.setPointerCapture(event.pointerId);
       panDragRef.current = { x: event.clientX, y: event.clientY, panX: pan.x, panY: pan.y };
       setPanning(true);
@@ -161,6 +163,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
   const onBlockPointerDown = useCallback((event: ReactPointerEvent<HTMLElement>, block: StoryBlock) => {
     if (event.button !== 0) return;
     event.stopPropagation();
+    setSelectedBlockId(block.id);
     event.currentTarget.setPointerCapture(event.pointerId);
     blockDragRef.current = {
       id: block.id,
@@ -224,6 +227,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
     setBlocks((current) => current.filter((block) => block.id !== blockId));
     setParamsBlockId((current) => (current === blockId ? null : current));
     setDraggingBlockId((current) => (current === blockId ? null : current));
+    setSelectedBlockId((current) => (current === blockId ? null : current));
   }, []);
 
   const submitAssistant = useCallback(
@@ -379,7 +383,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
             {blocks.map((block) => (
               <article
                 key={block.id}
-                className={`story-block${draggingBlockId === block.id ? ' is-dragging' : ''}`}
+                className={`story-block${draggingBlockId === block.id ? ' is-dragging' : ''}${selectedBlockId === block.id ? ' is-selected' : ''}`}
                 data-testid={`story-block-${block.id}`}
                 style={{ left: block.x, top: block.y }}
                 onPointerDown={(event) => onBlockPointerDown(event, block)}

@@ -1439,6 +1439,13 @@ th {
   z-index: 5;
 }
 
+.story-block.is-selected {
+  border-color: rgba(126, 200, 227, 0.65);
+  box-shadow:
+    0 0 0 1px rgba(126, 200, 227, 0.35),
+    0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
 .story-block-preview {
   aspect-ratio: 16 / 10;
   background:

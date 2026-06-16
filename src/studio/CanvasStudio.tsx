@@ -110,6 +110,10 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
     setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number((current + delta).toFixed(2)))));
   }, []);
 
+  const zoomBy = useCallback((delta: number) => {
+    setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number((current + delta).toFixed(2)))));
+  }, []);
+
   const onViewportPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       if (event.button !== 0 || blockDragRef.current) return;
@@ -491,6 +495,13 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
             title="Add story block"
             onClick={addStoryBlock}
           >
+            +
+          </button>
+          <span className="studio-toolbar-sep" aria-hidden="true" />
+          <button type="button" title="Zoom out" data-testid="studio-zoom-out" onClick={() => zoomBy(-0.1)}>
+            −
+          </button>
+          <button type="button" title="Zoom in" data-testid="studio-zoom-in" onClick={() => zoomBy(0.1)}>
             +
           </button>
           <button type="button" title="Reset zoom" onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}>

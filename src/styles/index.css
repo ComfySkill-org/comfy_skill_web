@@ -1408,6 +1408,13 @@ th {
   line-height: 1;
 }
 
+.studio-toolbar-sep {
+  align-self: stretch;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0.2rem 0.15rem;
+  width: 1px;
+}
+
 /* Story blocks — product content only; params stay hidden (PRD F4) */
 .story-block {
   background: #252c36;

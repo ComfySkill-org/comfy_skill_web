@@ -1,5 +1,6 @@
-import { FormEvent, useCallback, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from 'react';
+import { FormEvent, useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from 'react';
 import { jobsApi, type QualityTier, type User } from '../api/client';
+import { loadStudioState, saveStudioState } from './studioStorage';
 
 type CanvasStudioProps = {
   user: User | null;
@@ -76,20 +77,32 @@ function linkPath(from: StoryBlock, to: StoryBlock) {
  * Parameters stay hidden until the block 「参数」 control is opened.
  */
 export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: CanvasStudioProps) {
+  const saved = typeof window !== 'undefined' ? loadStudioState() : null;
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [panning, setPanning] = useState(false);
-  const [blocks, setBlocks] = useState<StoryBlock[]>(SEED_BLOCKS);
+  const [blocks, setBlocks] = useState<StoryBlock[]>(saved?.blocks ?? SEED_BLOCKS);
   const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null);
   const [paramsBlockId, setParamsBlockId] = useState<string | null>(null);
   const [assistantDraft, setAssistantDraft] = useState('');
   const [assistantNote, setAssistantNote] = useState('用一句话描述今天的故事，我会帮你落到画布上的镜头块。');
-  const [projectTitle, setProjectTitle] = useState('Untitled project');
-  const [studioView, setStudioView] = useState<'storyboard' | 'workflow'>('storyboard');
+  const [projectTitle, setProjectTitle] = useState(saved?.projectTitle ?? 'Untitled project');
+  const [studioView, setStudioView] = useState<'storyboard' | 'workflow'>(saved?.studioView ?? 'storyboard');
   const panDragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
   const blockDragRef = useRef<{ id: string; x: number; y: number; originX: number; originY: number } | null>(null);
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
+
+  useEffect(() => {
+    saveStudioState({
+      projectTitle,
+      studioView,
+      blocks: blocks.map((block) => ({
+        ...block,
+        status: block.status === 'generating' ? 'ready' : block.status,
+      })),
+    });
+  }, [blocks, projectTitle, studioView]);
 
   const onWheel = useCallback((event: ReactWheelEvent<HTMLDivElement>) => {
     event.preventDefault();

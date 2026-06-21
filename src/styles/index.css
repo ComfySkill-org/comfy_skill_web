@@ -1167,6 +1167,32 @@ th {
   gap: 0.75rem;
 }
 
+.studio-view-toggle {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  display: flex;
+  padding: 0.2rem;
+}
+
+.studio-view-toggle button {
+  border-radius: 999px;
+  color: rgba(243, 246, 248, 0.65);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+}
+
+.studio-view-toggle button.active {
+  background: rgba(126, 200, 227, 0.22);
+  color: #dff4fb;
+}
+
+.studio-stage.studio-view-workflow .studio-link-path {
+  stroke: rgba(255, 244, 184, 0.45);
+  stroke-dasharray: 6 6;
+}
+
 .studio-topbar .credit-badge,
 .studio-topbar .pill {
   background: rgba(255, 255, 255, 0.08);

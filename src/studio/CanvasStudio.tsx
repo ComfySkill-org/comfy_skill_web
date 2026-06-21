@@ -85,6 +85,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
   const [assistantDraft, setAssistantDraft] = useState('');
   const [assistantNote, setAssistantNote] = useState('用一句话描述今天的故事，我会帮你落到画布上的镜头块。');
   const [projectTitle, setProjectTitle] = useState('Untitled project');
+  const [studioView, setStudioView] = useState<'storyboard' | 'workflow'>('storyboard');
   const panDragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
   const blockDragRef = useRef<{ id: string; x: number; y: number; originX: number; originY: number } | null>(null);
   const zoomRef = useRef(zoom);
@@ -311,12 +312,27 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
           />
         </div>
         <div className="studio-topbar-meta">
+          <div className="studio-view-toggle" role="group" aria-label="Studio view">
+            <button
+              type="button"
+              className={studioView === 'workflow' ? 'active' : ''}
+              onClick={() => setStudioView('workflow')}
+            >
+              工作流
+            </button>
+            <button
+              type="button"
+              className={studioView === 'storyboard' ? 'active' : ''}
+              onClick={() => setStudioView('storyboard')}
+            >
+              故事板
+            </button>
+          </div>
           <span className="credit-badge">{user.balance_credits} credits</span>
-          <span className="pill">Storyboard</span>
         </div>
       </header>
       <div className="studio-body">
-      <div className="studio-stage">
+      <div className={`studio-stage studio-view-${studioView}`}>
         <div
           className={`studio-viewport${panning ? ' is-panning' : ''}`}
           data-testid="studio-viewport"

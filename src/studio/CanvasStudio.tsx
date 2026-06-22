@@ -202,6 +202,12 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
     });
   }, []);
 
+  const removeStoryBlock = useCallback((blockId: string) => {
+    setBlocks((current) => current.filter((block) => block.id !== blockId));
+    setParamsBlockId((current) => (current === blockId ? null : current));
+    setDraggingBlockId((current) => (current === blockId ? null : current));
+  }, []);
+
   const submitAssistant = useCallback(
     (event: FormEvent) => {
       event.preventDefault();
@@ -398,6 +404,18 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
                       }}
                     >
                       参数
+                    </button>
+                    <button
+                      type="button"
+                      className="story-block-delete-btn"
+                      data-testid={`delete-btn-${block.id}`}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        removeStoryBlock(block.id);
+                      }}
+                    >
+                      删除
                     </button>
                   </div>
                   {paramsBlockId === block.id && (

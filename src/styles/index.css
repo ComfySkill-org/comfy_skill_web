@@ -1550,6 +1550,22 @@ th {
   padding: 0.3rem 0.55rem;
 }
 
+.story-block-delete-btn {
+  background: rgba(255, 120, 120, 0.1);
+  border: 1px solid rgba(255, 120, 120, 0.28);
+  border-radius: 8px;
+  color: #ffb4b4;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+}
+
+.story-block-delete-btn:hover {
+  background: rgba(255, 120, 120, 0.2);
+  color: #ffd0d0;
+}
+
 .story-block-params-btn:hover {
   background: rgba(126, 200, 227, 0.16);
   color: #f3f6f8;

@@ -84,6 +84,7 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
   const [paramsBlockId, setParamsBlockId] = useState<string | null>(null);
   const [assistantDraft, setAssistantDraft] = useState('');
   const [assistantNote, setAssistantNote] = useState('用一句话描述今天的故事，我会帮你落到画布上的镜头块。');
+  const [projectTitle, setProjectTitle] = useState('Untitled project');
   const panDragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
   const blockDragRef = useRef<{ id: string; x: number; y: number; originX: number; originY: number } | null>(null);
   const zoomRef = useRef(zoom);
@@ -296,7 +297,12 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
       <header className="studio-topbar">
         <div>
           <p className="eyebrow small">Studio</p>
-          <h1>Untitled project</h1>
+          <input
+            className="studio-project-title"
+            value={projectTitle}
+            aria-label="Project title"
+            onChange={(event) => setProjectTitle(event.target.value)}
+          />
         </div>
         <div className="studio-topbar-meta">
           <span className="credit-badge">{user.balance_credits} credits</span>

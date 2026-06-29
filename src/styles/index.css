@@ -1390,6 +1390,46 @@ th {
   aspect-ratio: 16 / 10;
   background:
     linear-gradient(145deg, rgba(126, 200, 227, 0.35), rgba(255, 244, 184, 0.12) 55%, rgba(39, 131, 165, 0.4));
+  background-position: center;
+  background-size: cover;
+}
+
+.story-block-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.story-block-generate-btn {
+  background: rgba(126, 200, 227, 0.22);
+  border: 1px solid rgba(126, 200, 227, 0.35);
+  border-radius: 8px;
+  color: #dff4fb;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+}
+
+.story-block-generate-btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.story-block-error {
+  color: #ffb4b4 !important;
+  font-size: 0.72rem !important;
+}
+
+.story-block-status.status-done {
+  background: rgba(110, 200, 150, 0.2);
+  color: #9fe0b8;
+}
+
+.story-block-status.status-failed {
+  background: rgba(255, 120, 120, 0.18);
+  color: #ffb4b4;
 }
 
 .story-block-body {

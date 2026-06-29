@@ -1,5 +1,5 @@
 import { FormEvent, useCallback, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from 'react';
-import type { QualityTier, User } from '../api/client';
+import { jobsApi, type QualityTier, type User } from '../api/client';
 
 type CanvasStudioProps = {
   user: User | null;
@@ -10,8 +10,11 @@ type StoryBlock = {
   id: string;
   title: string;
   synopsis: string;
-  status: 'idle' | 'ready' | 'generating';
+  status: 'idle' | 'ready' | 'generating' | 'done' | 'failed';
   quality: QualityTier;
+  outputUrl?: string;
+  jobId?: string;
+  error?: string;
   x: number;
   y: number;
 };
@@ -225,6 +228,44 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
     [assistantDraft],
   );
 
+  const patchBlock = useCallback((blockId: string, patch: Partial<StoryBlock>) => {
+    setBlocks((current) => current.map((block) => (block.id === blockId ? { ...block, ...patch } : block)));
+  }, []);
+
+  const generateBlock = useCallback(
+    async (block: StoryBlock) => {
+      if (block.status === 'generating') return;
+      patchBlock(block.id, { status: 'generating', error: undefined });
+      try {
+        const { job } = await jobsApi.create({ prompt: block.synopsis, quality_tier: block.quality });
+        patchBlock(block.id, { jobId: job.id });
+        let latest = job;
+        for (let attempt = 0; attempt < 8 && latest.status !== 'completed' && latest.status !== 'failed'; attempt += 1) {
+          await new Promise((resolve) => setTimeout(resolve, 400));
+          latest = await jobsApi.get(job.id);
+        }
+        if (latest.status === 'completed') {
+          patchBlock(block.id, {
+            status: 'done',
+            outputUrl: latest.output_url ?? undefined,
+            error: undefined,
+          });
+        } else {
+          patchBlock(block.id, {
+            status: 'failed',
+            error: latest.error_message ?? 'Generation did not finish',
+          });
+        }
+      } catch (err) {
+        patchBlock(block.id, {
+          status: 'failed',
+          error: err instanceof Error ? err.message : 'Generation failed',
+        });
+      }
+    },
+    [patchBlock],
+  );
+
   if (!user) {
     return (
       <div className="page narrow center">
@@ -292,25 +333,45 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
                 onPointerUp={onBlockPointerUp}
                 onPointerCancel={onBlockPointerUp}
               >
-                <div className="story-block-preview" aria-hidden="true" />
+                <div
+                  className="story-block-preview"
+                  aria-hidden={!block.outputUrl}
+                  style={block.outputUrl ? { backgroundImage: `url(${block.outputUrl})` } : undefined}
+                />
                 <div className="story-block-body">
                   <div className="story-block-head">
                     <h2>{block.title}</h2>
                     <span className={`story-block-status status-${block.status}`}>{block.status}</span>
                   </div>
                   <p>{block.synopsis}</p>
-                  <button
-                    type="button"
-                    className="story-block-params-btn"
-                    data-testid={`params-btn-${block.id}`}
-                    onPointerDown={(event) => event.stopPropagation()}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      toggleParams(block.id);
-                    }}
-                  >
-                    参数
-                  </button>
+                  {block.error && <p className="story-block-error">{block.error}</p>}
+                  <div className="story-block-actions">
+                    <button
+                      type="button"
+                      className="story-block-generate-btn"
+                      data-testid={`generate-btn-${block.id}`}
+                      disabled={block.status === 'generating'}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void generateBlock(block);
+                      }}
+                    >
+                      {block.status === 'generating' ? '生成中…' : '生成'}
+                    </button>
+                    <button
+                      type="button"
+                      className="story-block-params-btn"
+                      data-testid={`params-btn-${block.id}`}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        toggleParams(block.id);
+                      }}
+                    >
+                      参数
+                    </button>
+                  </div>
                   {paramsBlockId === block.id && (
                     <div
                       className="story-block-params-panel"

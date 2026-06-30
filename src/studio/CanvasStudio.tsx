@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from 'react';
+import { FormEvent, useCallback, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from 'react';
 import type { QualityTier, User } from '../api/client';
 
 type CanvasStudioProps = {
@@ -78,6 +78,8 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
   const [blocks, setBlocks] = useState<StoryBlock[]>(SEED_BLOCKS);
   const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null);
   const [paramsBlockId, setParamsBlockId] = useState<string | null>(null);
+  const [assistantDraft, setAssistantDraft] = useState('');
+  const [assistantNote, setAssistantNote] = useState('用一句话描述今天的故事，我会帮你落到画布上的镜头块。');
   const panDragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
   const blockDragRef = useRef<{ id: string; x: number; y: number; originX: number; originY: number } | null>(null);
   const zoomRef = useRef(zoom);
@@ -195,6 +197,34 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
     });
   }, []);
 
+  const submitAssistant = useCallback(
+    (event: FormEvent) => {
+      event.preventDefault();
+      const brief = assistantDraft.trim();
+      if (!brief) return;
+      const title = brief.length > 28 ? `${brief.slice(0, 28)}…` : brief;
+      setBlocks((current) => {
+        const index = current.length + 1;
+        const offset = (index % 4) * 40;
+        return [
+          ...current,
+          {
+            id: `shot-${Date.now()}`,
+            title: title || `Shot ${index}`,
+            synopsis: brief,
+            status: 'ready' as const,
+            quality: 'standard' as QualityTier,
+            x: 160 + offset,
+            y: 200 + offset,
+          },
+        ];
+      });
+      setAssistantNote('已把这段描述落到一个新镜头块。继续补充下一拍，或去画布上调整位置。');
+      setAssistantDraft('');
+    },
+    [assistantDraft],
+  );
+
   if (!user) {
     return (
       <div className="page narrow center">
@@ -223,6 +253,7 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
           <span className="pill">Storyboard</span>
         </div>
       </header>
+      <div className="studio-body">
       <div className="studio-stage">
         <div
           className={`studio-viewport${panning ? ' is-panning' : ''}`}
@@ -330,6 +361,41 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
             Fit
           </button>
         </div>
+      </div>
+      <aside className="studio-assistant" data-testid="studio-assistant">
+        <div className="studio-assistant-head">
+          <p className="eyebrow small">Assistant</p>
+          <h2>新对话</h2>
+        </div>
+        <p className="studio-assistant-note">{assistantNote}</p>
+        <div className="studio-assistant-templates">
+          <p className="studio-assistant-label">用产品模板起稿</p>
+          <button type="button" onClick={() => setAssistantDraft('皮克斯风短片：一只迷路的纸飞机找回主人')}>
+            皮克斯动画
+          </button>
+          <button type="button" onClick={() => setAssistantDraft('爆款短片结构：钩子开场 → 反转 → 强结尾')}>
+            爆款短片
+          </button>
+          <button type="button" onClick={() => setAssistantDraft('新中式美学：雨巷灯笼与慢推镜头')}>
+            新中式美学
+          </button>
+        </div>
+        <form className="studio-assistant-form" onSubmit={submitAssistant}>
+          <label>
+            <span className="sr-only">Story brief</span>
+            <textarea
+              className="studio-assistant-input"
+              value={assistantDraft}
+              onChange={(event) => setAssistantDraft(event.target.value)}
+              placeholder="用 Skill，开启今天的故事…"
+              rows={3}
+            />
+          </label>
+          <button className="btn-primary full" type="submit">
+            落到画布
+          </button>
+        </form>
+      </aside>
       </div>
     </div>
   );

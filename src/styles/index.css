@@ -1446,6 +1446,40 @@ th {
   justify-content: space-between;
 }
 
+.story-block-title-input {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #f3f6f8;
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 700;
+  min-width: 0;
+  padding: 0.1rem 0.2rem;
+}
+
+.story-block-title-input:focus {
+  border-color: rgba(126, 200, 227, 0.45);
+  outline: none;
+}
+
+.story-block-synopsis-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: rgba(243, 246, 248, 0.8);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding: 0.4rem 0.45rem;
+  resize: vertical;
+  width: 100%;
+}
+
+.story-block-synopsis-input:focus {
+  border-color: rgba(126, 200, 227, 0.4);
+  outline: none;
+}
+
 .story-block h2 {
   font-size: 0.95rem;
   font-weight: 700;

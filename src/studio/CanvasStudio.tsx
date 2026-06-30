@@ -349,10 +349,23 @@ export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: C
                 />
                 <div className="story-block-body">
                   <div className="story-block-head">
-                    <h2>{block.title}</h2>
+                    <input
+                      className="story-block-title-input"
+                      value={block.title}
+                      aria-label="Shot title"
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onChange={(event) => patchBlock(block.id, { title: event.target.value })}
+                    />
                     <span className={`story-block-status status-${block.status}`}>{block.status}</span>
                   </div>
-                  <p>{block.synopsis}</p>
+                  <textarea
+                    className="story-block-synopsis-input"
+                    value={block.synopsis}
+                    aria-label="Shot synopsis"
+                    rows={3}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onChange={(event) => patchBlock(block.id, { synopsis: event.target.value, status: block.status === 'done' ? 'ready' : block.status })}
+                  />
                   {block.error && <p className="story-block-error">{block.error}</p>}
                   <div className="story-block-actions">
                     <button

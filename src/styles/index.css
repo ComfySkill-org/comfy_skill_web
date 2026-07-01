@@ -1187,9 +1187,29 @@ th {
 
 .studio-world {
   height: 100%;
+  min-height: 48rem;
+  min-width: 64rem;
   position: relative;
   transform-origin: center center;
   width: 100%;
+}
+
+.studio-links {
+  height: 100%;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 0;
+}
+
+.studio-link-path {
+  fill: none;
+  stroke: rgba(126, 200, 227, 0.35);
+  stroke-linecap: round;
+  stroke-width: 2;
 }
 
 .studio-zoom-badge {
@@ -1258,6 +1278,7 @@ th {
   touch-action: none;
   user-select: none;
   width: 220px;
+  z-index: 1;
 }
 
 .story-block.is-dragging {

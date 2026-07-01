@@ -55,8 +55,20 @@ const SEED_BLOCKS: StoryBlock[] = [
   },
 ];
 
+const BLOCK_WIDTH = 220;
+const BLOCK_ANCHOR_Y = 96;
+
+function linkPath(from: StoryBlock, to: StoryBlock) {
+  const x1 = from.x + BLOCK_WIDTH;
+  const y1 = from.y + BLOCK_ANCHOR_Y;
+  const x2 = to.x;
+  const y2 = to.y + BLOCK_ANCHOR_Y;
+  const midX = (x1 + x2) / 2;
+  return `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+}
+
 /**
- * Product-first studio canvas (PRD F3/F4/F5).
+ * Product-first studio canvas (PRD F3/F4/F5/F6).
  * Parameters stay hidden until the block 「参数」 control is opened.
  */
 export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProps) {
@@ -226,6 +238,18 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
             style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
             data-testid="studio-world"
           >
+            <svg className="studio-links" aria-hidden="true" data-testid="studio-links">
+              {blocks.slice(0, -1).map((block, index) => {
+                const next = blocks[index + 1];
+                return (
+                  <path
+                    key={`${block.id}-${next.id}`}
+                    className="studio-link-path"
+                    d={linkPath(block, next)}
+                  />
+                );
+              })}
+            </svg>
             {blocks.map((block) => (
               <article
                 key={block.id}

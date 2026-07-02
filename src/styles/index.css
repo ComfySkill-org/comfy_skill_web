@@ -1206,6 +1206,43 @@ th {
   z-index: 2;
 }
 
+.studio-toolbar {
+  align-items: center;
+  background: rgba(18, 22, 28, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  bottom: 1rem;
+  display: flex;
+  gap: 0.35rem;
+  left: 50%;
+  padding: 0.35rem;
+  position: absolute;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.studio-toolbar button {
+  background: transparent;
+  border-radius: 999px;
+  color: rgba(243, 246, 248, 0.85);
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-width: 2.4rem;
+  padding: 0.55rem 0.75rem;
+}
+
+.studio-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.studio-toolbar-add {
+  background: rgba(126, 200, 227, 0.22) !important;
+  color: #dff4fb !important;
+  font-size: 1.15rem !important;
+  line-height: 1;
+}
+
 /* Story blocks — product content only; params stay hidden (PRD F4) */
 .story-block {
   background: #252c36;

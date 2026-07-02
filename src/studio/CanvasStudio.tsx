@@ -164,6 +164,25 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
     setBlocks((current) => current.map((block) => (block.id === blockId ? { ...block, quality } : block)));
   }, []);
 
+  const addStoryBlock = useCallback(() => {
+    setBlocks((current) => {
+      const index = current.length + 1;
+      const offset = (index % 4) * 36;
+      return [
+        ...current,
+        {
+          id: `shot-${Date.now()}`,
+          title: `Shot ${index}`,
+          synopsis: 'Describe this beat in plain language.',
+          status: 'idle' as const,
+          quality: 'standard' as QualityTier,
+          x: 120 + offset,
+          y: 220 + offset,
+        },
+      ];
+    });
+  }, []);
+
   if (!user) {
     return (
       <div className="page narrow center">
@@ -272,6 +291,20 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
         </div>
         <div className="studio-zoom-badge" aria-live="polite">
           {zoomPercent}%
+        </div>
+        <div className="studio-toolbar" role="toolbar" aria-label="Studio tools">
+          <button
+            type="button"
+            className="studio-toolbar-add"
+            data-testid="studio-add-block"
+            title="Add story block"
+            onClick={addStoryBlock}
+          >
+            +
+          </button>
+          <button type="button" title="Reset zoom" onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}>
+            Fit
+          </button>
         </div>
       </div>
     </div>

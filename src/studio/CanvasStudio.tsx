@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from 'react';
-import type { User } from '../api/client';
+import type { QualityTier, User } from '../api/client';
 
 type CanvasStudioProps = {
   user: User | null;
@@ -11,6 +11,7 @@ type StoryBlock = {
   title: string;
   synopsis: string;
   status: 'idle' | 'ready' | 'generating';
+  quality: QualityTier;
   x: number;
   y: number;
 };
@@ -18,12 +19,19 @@ type StoryBlock = {
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 2.5;
 
+const QUALITY_OPTIONS: { tier: QualityTier; label: string }[] = [
+  { tier: 'budget', label: 'Budget' },
+  { tier: 'standard', label: 'Medium' },
+  { tier: 'premium', label: 'Good' },
+];
+
 const SEED_BLOCKS: StoryBlock[] = [
   {
     id: 'shot-1',
     title: 'Opening beat',
     synopsis: 'Wide establishing shot. Soft morning light over the quiet street.',
     status: 'ready',
+    quality: 'standard',
     x: 80,
     y: 120,
   },
@@ -32,6 +40,7 @@ const SEED_BLOCKS: StoryBlock[] = [
     title: 'Character enter',
     synopsis: 'Hero steps into frame, glances toward the bakery window.',
     status: 'idle',
+    quality: 'standard',
     x: 360,
     y: 160,
   },
@@ -40,14 +49,15 @@ const SEED_BLOCKS: StoryBlock[] = [
     title: 'Close reaction',
     synopsis: 'Tight face shot. A small smile as the door chime rings.',
     status: 'idle',
+    quality: 'budget',
     x: 640,
     y: 120,
   },
 ];
 
 /**
- * Product-first studio canvas (PRD F3/F4).
- * Params panel lands in a follow-up step.
+ * Product-first studio canvas (PRD F3/F4/F5).
+ * Parameters stay hidden until the block 「参数」 control is opened.
  */
 export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProps) {
   const [zoom, setZoom] = useState(1);
@@ -55,6 +65,7 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
   const [panning, setPanning] = useState(false);
   const [blocks, setBlocks] = useState<StoryBlock[]>(SEED_BLOCKS);
   const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null);
+  const [paramsBlockId, setParamsBlockId] = useState<string | null>(null);
   const panDragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
   const blockDragRef = useRef<{ id: string; x: number; y: number; originX: number; originY: number } | null>(null);
   const zoomRef = useRef(zoom);
@@ -145,6 +156,14 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
     }
   }, []);
 
+  const toggleParams = useCallback((blockId: string) => {
+    setParamsBlockId((current) => (current === blockId ? null : blockId));
+  }, []);
+
+  const setBlockQuality = useCallback((blockId: string, quality: QualityTier) => {
+    setBlocks((current) => current.map((block) => (block.id === blockId ? { ...block, quality } : block)));
+  }, []);
+
   if (!user) {
     return (
       <div className="page narrow center">
@@ -206,6 +225,46 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
                     <span className={`story-block-status status-${block.status}`}>{block.status}</span>
                   </div>
                   <p>{block.synopsis}</p>
+                  <button
+                    type="button"
+                    className="story-block-params-btn"
+                    data-testid={`params-btn-${block.id}`}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleParams(block.id);
+                    }}
+                  >
+                    参数
+                  </button>
+                  {paramsBlockId === block.id && (
+                    <div
+                      className="story-block-params-panel"
+                      data-testid={`params-panel-${block.id}`}
+                      onPointerDown={(event) => event.stopPropagation()}
+                    >
+                      <p className="story-block-params-label">Quality</p>
+                      <div className="story-block-params-options">
+                        {QUALITY_OPTIONS.map((option) => (
+                          <button
+                            key={option.tier}
+                            type="button"
+                            className={block.quality === option.tier ? 'active' : ''}
+                            onClick={() => setBlockQuality(block.id, option.tier)}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        className="story-block-params-close"
+                        onClick={() => setParamsBlockId(null)}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  )}
                 </div>
               </article>
             ))}

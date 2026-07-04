@@ -1213,11 +1213,20 @@ th {
   border-radius: 14px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
   color: #f3f6f8;
+  cursor: grab;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: absolute;
+  touch-action: none;
+  user-select: none;
   width: 220px;
+}
+
+.story-block.is-dragging {
+  cursor: grabbing;
+  opacity: 0.94;
+  z-index: 5;
 }
 
 .story-block-preview {

@@ -47,14 +47,18 @@ const SEED_BLOCKS: StoryBlock[] = [
 
 /**
  * Product-first studio canvas (PRD F3/F4).
- * Block drag and params panel land in follow-up steps.
+ * Params panel lands in a follow-up step.
  */
 export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProps) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [panning, setPanning] = useState(false);
-  const [blocks] = useState<StoryBlock[]>(SEED_BLOCKS);
-  const dragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+  const [blocks, setBlocks] = useState<StoryBlock[]>(SEED_BLOCKS);
+  const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null);
+  const panDragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+  const blockDragRef = useRef<{ id: string; x: number; y: number; originX: number; originY: number } | null>(null);
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
 
   const onWheel = useCallback((event: ReactWheelEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -62,32 +66,82 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
     setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number((current + delta).toFixed(2)))));
   }, []);
 
-  const onPointerDown = useCallback(
+  const onViewportPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (event.button !== 0) return;
+      if (event.button !== 0 || blockDragRef.current) return;
       event.currentTarget.setPointerCapture(event.pointerId);
-      dragRef.current = { x: event.clientX, y: event.clientY, panX: pan.x, panY: pan.y };
+      panDragRef.current = { x: event.clientX, y: event.clientY, panX: pan.x, panY: pan.y };
       setPanning(true);
     },
     [pan.x, pan.y],
   );
 
-  const onPointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    setPan({
-      x: drag.panX + (event.clientX - drag.x),
-      y: drag.panY + (event.clientY - drag.y),
-    });
+  const onViewportPointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    const panDrag = panDragRef.current;
+    if (panDrag) {
+      setPan({
+        x: panDrag.panX + (event.clientX - panDrag.x),
+        y: panDrag.panY + (event.clientY - panDrag.y),
+      });
+      return;
+    }
+
+    const blockDrag = blockDragRef.current;
+    if (!blockDrag) return;
+    const scale = zoomRef.current || 1;
+    const nextX = blockDrag.originX + (event.clientX - blockDrag.x) / scale;
+    const nextY = blockDrag.originY + (event.clientY - blockDrag.y) / scale;
+    setBlocks((current) =>
+      current.map((block) => (block.id === blockDrag.id ? { ...block, x: nextX, y: nextY } : block)),
+    );
   }, []);
 
-  const endPan = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    if (dragRef.current) {
-      dragRef.current = null;
+  const endViewportPointer = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (panDragRef.current) {
+      panDragRef.current = null;
       setPanning(false);
-      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-        event.currentTarget.releasePointerCapture(event.pointerId);
-      }
+    }
+    if (blockDragRef.current) {
+      blockDragRef.current = null;
+      setDraggingBlockId(null);
+    }
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }, []);
+
+  const onBlockPointerDown = useCallback((event: ReactPointerEvent<HTMLElement>, block: StoryBlock) => {
+    if (event.button !== 0) return;
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    blockDragRef.current = {
+      id: block.id,
+      x: event.clientX,
+      y: event.clientY,
+      originX: block.x,
+      originY: block.y,
+    };
+    setDraggingBlockId(block.id);
+  }, []);
+
+  const onBlockPointerMove = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    const blockDrag = blockDragRef.current;
+    if (!blockDrag) return;
+    const scale = zoomRef.current || 1;
+    const nextX = blockDrag.originX + (event.clientX - blockDrag.x) / scale;
+    const nextY = blockDrag.originY + (event.clientY - blockDrag.y) / scale;
+    setBlocks((current) =>
+      current.map((block) => (block.id === blockDrag.id ? { ...block, x: nextX, y: nextY } : block)),
+    );
+  }, []);
+
+  const onBlockPointerUp = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (blockDragRef.current) {
+      blockDragRef.current = null;
+      setDraggingBlockId(null);
+    }
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
     }
   }, []);
 
@@ -124,10 +178,10 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
           className={`studio-viewport${panning ? ' is-panning' : ''}`}
           data-testid="studio-viewport"
           onWheel={onWheel}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endPan}
-          onPointerCancel={endPan}
+          onPointerDown={onViewportPointerDown}
+          onPointerMove={onViewportPointerMove}
+          onPointerUp={endViewportPointer}
+          onPointerCancel={endViewportPointer}
         >
           <div
             className="studio-world"
@@ -137,10 +191,13 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
             {blocks.map((block) => (
               <article
                 key={block.id}
-                className="story-block"
+                className={`story-block${draggingBlockId === block.id ? ' is-dragging' : ''}`}
                 data-testid={`story-block-${block.id}`}
                 style={{ left: block.x, top: block.y }}
-                onPointerDown={(event) => event.stopPropagation()}
+                onPointerDown={(event) => onBlockPointerDown(event, block)}
+                onPointerMove={onBlockPointerMove}
+                onPointerUp={onBlockPointerUp}
+                onPointerCancel={onBlockPointerUp}
               >
                 <div className="story-block-preview" aria-hidden="true" />
                 <div className="story-block-body">

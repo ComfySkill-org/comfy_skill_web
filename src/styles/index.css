@@ -1205,3 +1205,74 @@ th {
   position: absolute;
   z-index: 2;
 }
+
+/* Story blocks — product content only; params stay hidden (PRD F4) */
+.story-block {
+  background: #252c36;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  color: #f3f6f8;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: absolute;
+  width: 220px;
+}
+
+.story-block-preview {
+  aspect-ratio: 16 / 10;
+  background:
+    linear-gradient(145deg, rgba(126, 200, 227, 0.35), rgba(255, 244, 184, 0.12) 55%, rgba(39, 131, 165, 0.4));
+}
+
+.story-block-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.75rem 0.85rem 0.9rem;
+}
+
+.story-block-head {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.story-block h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.story-block p {
+  color: rgba(243, 246, 248, 0.68);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.story-block-status {
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.15rem 0.45rem;
+  text-transform: uppercase;
+}
+
+.story-block-status.status-idle {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(243, 246, 248, 0.7);
+}
+
+.story-block-status.status-ready {
+  background: rgba(126, 200, 227, 0.2);
+  color: #9ad7ea;
+}
+
+.story-block-status.status-generating {
+  background: rgba(255, 244, 184, 0.18);
+  color: #fff4b8;
+}

@@ -6,17 +6,54 @@ type CanvasStudioProps = {
   onNavigateLogin: () => void;
 };
 
+type StoryBlock = {
+  id: string;
+  title: string;
+  synopsis: string;
+  status: 'idle' | 'ready' | 'generating';
+  x: number;
+  y: number;
+};
+
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 2.5;
 
+const SEED_BLOCKS: StoryBlock[] = [
+  {
+    id: 'shot-1',
+    title: 'Opening beat',
+    synopsis: 'Wide establishing shot. Soft morning light over the quiet street.',
+    status: 'ready',
+    x: 80,
+    y: 120,
+  },
+  {
+    id: 'shot-2',
+    title: 'Character enter',
+    synopsis: 'Hero steps into frame, glances toward the bakery window.',
+    status: 'idle',
+    x: 360,
+    y: 160,
+  },
+  {
+    id: 'shot-3',
+    title: 'Close reaction',
+    synopsis: 'Tight face shot. A small smile as the door chime rings.',
+    status: 'idle',
+    x: 640,
+    y: 120,
+  },
+];
+
 /**
- * Product-first studio canvas (PRD F3).
- * Story blocks and params panel land in follow-up steps.
+ * Product-first studio canvas (PRD F3/F4).
+ * Block drag and params panel land in follow-up steps.
  */
 export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProps) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [panning, setPanning] = useState(false);
+  const [blocks] = useState<StoryBlock[]>(SEED_BLOCKS);
   const dragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
   const onWheel = useCallback((event: ReactWheelEvent<HTMLDivElement>) => {
@@ -97,7 +134,24 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
             style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
             data-testid="studio-world"
           >
-            <p className="studio-empty muted">Canvas is ready. Add story blocks to begin.</p>
+            {blocks.map((block) => (
+              <article
+                key={block.id}
+                className="story-block"
+                data-testid={`story-block-${block.id}`}
+                style={{ left: block.x, top: block.y }}
+                onPointerDown={(event) => event.stopPropagation()}
+              >
+                <div className="story-block-preview" aria-hidden="true" />
+                <div className="story-block-body">
+                  <div className="story-block-head">
+                    <h2>{block.title}</h2>
+                    <span className={`story-block-status status-${block.status}`}>{block.status}</span>
+                  </div>
+                  <p>{block.synopsis}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
         <div className="studio-zoom-badge" aria-live="polite">

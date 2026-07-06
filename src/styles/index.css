@@ -1173,10 +1173,16 @@ th {
 }
 
 .studio-viewport {
+  cursor: grab;
   height: 100%;
   overflow: hidden;
   position: relative;
+  touch-action: none;
   width: 100%;
+}
+
+.studio-viewport.is-panning {
+  cursor: grabbing;
 }
 
 .studio-world {

@@ -1171,3 +1171,31 @@ th {
   top: 50%;
   transform: translate(-50%, -50%);
 }
+
+.studio-viewport {
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.studio-world {
+  height: 100%;
+  position: relative;
+  transform-origin: center center;
+  width: 100%;
+}
+
+.studio-zoom-badge {
+  background: rgba(18, 22, 28, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  bottom: 1rem;
+  color: rgba(243, 246, 248, 0.85);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  left: 1rem;
+  padding: 0.35rem 0.7rem;
+  position: absolute;
+  z-index: 2;
+}

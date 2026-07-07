@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { User } from '../api/client';
 
 type CanvasStudioProps = {
@@ -6,10 +7,12 @@ type CanvasStudioProps = {
 };
 
 /**
- * Product-first studio canvas shell (PRD F3).
- * Blocks, pan/zoom, and params panel land in follow-up commits.
+ * Product-first studio canvas (PRD F3).
+ * Pan/zoom interaction and story blocks land in follow-up steps.
  */
 export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProps) {
+  const [zoom] = useState(1);
+
   if (!user) {
     return (
       <div className="page narrow center">
@@ -24,6 +27,8 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
     );
   }
 
+  const zoomPercent = Math.round(zoom * 100);
+
   return (
     <div className="studio-root" data-testid="studio-canvas">
       <header className="studio-topbar">
@@ -37,7 +42,18 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
         </div>
       </header>
       <div className="studio-stage">
-        <p className="studio-empty muted">Canvas is ready. Add story blocks to begin.</p>
+        <div className="studio-viewport" data-testid="studio-viewport">
+          <div
+            className="studio-world"
+            style={{ transform: `scale(${zoom})` }}
+            data-testid="studio-world"
+          >
+            <p className="studio-empty muted">Canvas is ready. Add story blocks to begin.</p>
+          </div>
+        </div>
+        <div className="studio-zoom-badge" aria-live="polite">
+          {zoomPercent}%
+        </div>
       </div>
     </div>
   );

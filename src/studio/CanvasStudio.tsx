@@ -237,7 +237,12 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
       if (block.status === 'generating') return;
       patchBlock(block.id, { status: 'generating', error: undefined });
       try {
-        const { job } = await jobsApi.create({ prompt: block.synopsis, quality_tier: block.quality });
+        const { job } = await jobsApi.create({
+          prompt: block.synopsis,
+          quality_tier: block.quality,
+          project_id: 'untitled-project',
+          block_id: block.id,
+        });
         patchBlock(block.id, { jobId: job.id });
         let latest = job;
         for (let attempt = 0; attempt < 8 && latest.status !== 'completed' && latest.status !== 'failed'; attempt += 1) {

@@ -32,6 +32,9 @@ export type Plan = {
 
 export type Job = {
   id: string;
+  user_id?: string;
+  project_id?: string | null;
+  block_id?: string | null;
   capability: string;
   prompt_text: string;
   quality_tier: QualityTier;
@@ -193,8 +196,12 @@ export const platformApi = {
 };
 
 export const jobsApi = {
-  create: (payload: { prompt: string; quality_tier: QualityTier }) =>
-    api.post<{ job: Job; credits_estimate: number }>('/jobs', payload).then((r) => r.data),
+  create: (payload: {
+    prompt: string;
+    quality_tier: QualityTier;
+    project_id?: string;
+    block_id?: string;
+  }) => api.post<{ job: Job; credits_estimate: number }>('/jobs', payload).then((r) => r.data),
   get: (id: string) => api.get<Job>(`/jobs/${id}`).then((r) => r.data),
   list: () => api.get<{ jobs: Job[]; total: number }>('/jobs').then((r) => r.data),
 };

@@ -19,6 +19,7 @@ import {
   type User,
   type WebhookEndpoint,
 } from './api/client';
+import CanvasStudio from './studio/CanvasStudio';
 
 type View =
   | 'home'
@@ -151,7 +152,9 @@ export default function App() {
         {view === 'features' && <FeaturesPage />}
         {view === 'pricing' && <PricingPage onNavigate={navigate} />}
         {view === 'login' && <LoginPage onLogin={handleLogin} onRegister={handleRegister} />}
-        {view === 'app' && <AppPage user={user} onNavigate={navigate} onUserRefresh={refreshUser} />}
+        {view === 'app' && (
+          <CanvasStudio user={user} onNavigateLogin={() => navigate('login')} />
+        )}
         {view === 'billing' && <BillingPage user={user} onNavigate={navigate} />}
         {view === 'settings' && <SettingsPage user={user} onNavigate={navigate} onUserRefresh={refreshUser} />}
         {view === 'developer' && <DeveloperPage user={user} onNavigate={navigate} />}

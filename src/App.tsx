@@ -153,7 +153,11 @@ export default function App() {
         {view === 'pricing' && <PricingPage onNavigate={navigate} />}
         {view === 'login' && <LoginPage onLogin={handleLogin} onRegister={handleRegister} />}
         {view === 'app' && (
-          <CanvasStudio user={user} onNavigateLogin={() => navigate('login')} />
+          <CanvasStudio
+            user={user}
+            onNavigateLogin={() => navigate('login')}
+            onUserRefresh={refreshUser}
+          />
         )}
         {view === 'billing' && <BillingPage user={user} onNavigate={navigate} />}
         {view === 'settings' && <SettingsPage user={user} onNavigate={navigate} onUserRefresh={refreshUser} />}

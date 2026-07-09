@@ -4,6 +4,7 @@ import { jobsApi, type QualityTier, type User } from '../api/client';
 type CanvasStudioProps = {
   user: User | null;
   onNavigateLogin: () => void;
+  onUserRefresh?: () => Promise<void>;
 };
 
 type StoryBlock = {
@@ -74,7 +75,7 @@ function linkPath(from: StoryBlock, to: StoryBlock) {
  * Product-first studio canvas (PRD F3/F4/F5/F6).
  * Parameters stay hidden until the block 「参数」 control is opened.
  */
-export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProps) {
+export default function CanvasStudio({ user, onNavigateLogin, onUserRefresh }: CanvasStudioProps) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [panning, setPanning] = useState(false);
@@ -244,6 +245,7 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
           block_id: block.id,
         });
         patchBlock(block.id, { jobId: job.id });
+        await onUserRefresh?.();
         let latest = job;
         for (let attempt = 0; attempt < 8 && latest.status !== 'completed' && latest.status !== 'failed'; attempt += 1) {
           await new Promise((resolve) => setTimeout(resolve, 400));
@@ -266,9 +268,11 @@ export default function CanvasStudio({ user, onNavigateLogin }: CanvasStudioProp
           status: 'failed',
           error: err instanceof Error ? err.message : 'Generation failed',
         });
+      } finally {
+        await onUserRefresh?.();
       }
     },
-    [patchBlock],
+    [onUserRefresh, patchBlock],
   );
 
   if (!user) {

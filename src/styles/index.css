@@ -1110,3 +1110,64 @@ th {
     flex-direction: column;
   }
 }
+
+/* Studio canvas (PRD F3) — Liblib-style dark board shell */
+.studio-root {
+  display: flex;
+  flex-direction: column;
+  margin: 0 calc(50% - 50vw);
+  min-height: calc(100vh - 4rem);
+  width: 100vw;
+}
+
+.studio-topbar {
+  align-items: center;
+  background: rgba(18, 22, 28, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f3f6f8;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+}
+
+.studio-topbar h1 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0.15rem 0 0;
+}
+
+.studio-topbar .eyebrow {
+  color: rgba(243, 246, 248, 0.55);
+  margin: 0;
+}
+
+.studio-topbar-meta {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.studio-topbar .credit-badge,
+.studio-topbar .pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f3f6f8;
+}
+
+.studio-stage {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(126, 200, 227, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255, 244, 184, 0.05), transparent 35%),
+    #1b2129;
+  flex: 1;
+  min-height: 28rem;
+  position: relative;
+}
+
+.studio-empty {
+  color: rgba(243, 246, 248, 0.45);
+  left: 50%;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
